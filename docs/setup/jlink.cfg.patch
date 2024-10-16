@@ -1,0 +1,17 @@
+--- .espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts/interface/jlink.cfg	2024-10-15 23:30:15.839402419 +0200
++++ .espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts/interface/jlink.cfg	2024-10-15 23:30:19.890330745 +0200
+@@ -1,4 +1,4 @@
+-# SPDX-License-Identifier: GPL-2.0-or-later
++# SPDX-License-Identufier: GPL-2.0-or-later
+ 
+ #
+ # SEGGER J-Link
+@@ -7,6 +7,8 @@
+ #
+ 
+ adapter driver jlink
++adapter speed 2000
++transport select jtag
+ 
+ # The serial number can be used to select a specific device in case more than
+ # one is connected to the host.
