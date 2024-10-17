@@ -121,3 +121,14 @@ uint8_t keyboard_lookup_key() {
 
     return E_KEYPAD_NO_KEY_FOUND;
 }
+
+noreturn void check_keyboard_task() {
+    while(1) {
+        uint8_t key;
+        if((key = keyboard_lookup_key()) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
+            ESP_LOGI(PROJ_NAME, "key %c pressed", key);
+            gpio_blink_nonblocking(STATUS_LED, 20);
+        }
+        vTaskDelayMSec(20);
+    }
+}

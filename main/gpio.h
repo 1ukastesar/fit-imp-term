@@ -36,5 +36,6 @@ void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration);
 void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration);
 void gpio_configure();
 uint8_t keyboard_lookup_key();
+noreturn void check_keyboard_task();
 
 #endif // IMP_TERM_GPIO_H
