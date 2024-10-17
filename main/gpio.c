@@ -98,7 +98,7 @@ void gpio_configure()
     ESP_ERROR_CHECK(gpio_config(&col_conf));
     ESP_ERROR_CHECK(gpio_config(&row_conf));
 
-    gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+    gpio_evt_queue = xQueueCreate(3, sizeof(uint32_t));
 
     ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT));
     for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
@@ -149,11 +149,9 @@ noreturn void keypad_handler_task()
             // printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
             if((key = keypad_key_lookup(io_num)) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
                 ESP_LOGI(PROJ_NAME, "key %c pressed", key);
-                // gpio_blink_nonblocking(STATUS_LED, 20);
-            } else {
-                ESP_LOGI(PROJ_NAME, "No key pressed");
+                gpio_blink_nonblocking(STATUS_LED, 20);
             }
         }
-        vTaskDelayMSec(20);
+        xQueueReset(gpio_evt_queue);
     }
 }
