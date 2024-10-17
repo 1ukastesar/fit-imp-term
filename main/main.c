@@ -31,6 +31,17 @@ noreturn void led_heartbeat_task() {
     }
 }
 
+noreturn void check_keyboard_task() {
+    vTaskDelaySec(5);
+    while(1) {
+        uint8_t key;
+        if((key = keyboard_lookup_key()) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
+            ESP_LOGI(PROJ_NAME, "key %i was pressed", key);
+            // gpio_blink_nonblocking(STATUS_LED, seconds(2));
+        }
+        vTaskDelayMSec(20);
+    }
+}
 
 void main_task()
 {

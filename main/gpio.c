@@ -13,7 +13,7 @@
 #include "gpio.h"
 #include "main.h"
 
-static int gpio_keypad_pin_map[] = {
+static int gpio_keypad_conn_map[] = {
     GPIO_NUM_5,     // = pin 1
     GPIO_NUM_23,    // = pin 2
     GPIO_NUM_26,    // = pin 3
@@ -22,6 +22,16 @@ static int gpio_keypad_pin_map[] = {
     GPIO_NUM_16,    // = pin 6
     GPIO_NUM_27     // = pin 7
 };
+
+char * gpio_pad_map[][3] = {
+    {"1", "2", "3"},
+    {"4", "5", "6"},
+    {"7", "8", "9"},
+    {"*", "0", "#"}
+};
+
+static int gpio_keypad_pin_cols[] = {0, 2, 4};
+static int gpio_keypad_pin_rows[] = {1, 3, 5, 6};
 
 void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration)
 {
@@ -47,21 +57,38 @@ void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration)
 void gpio_configure()
 {
     ESP_LOGI(PROJ_NAME, "Configuring GPIO pins");
+
     // Onboard status LED
     ESP_ERROR_CHECK(gpio_reset_pin(STATUS_LED));
     ESP_ERROR_CHECK(gpio_set_direction(STATUS_LED, GPIO_MODE_OUTPUT));
 
-    for(uint8_t i = 0; i < array_len(gpio_keypad_pin_map); i++) {
-        ESP_ERROR_CHECK(gpio_reset_pin(gpio_keypad_pin_map[i]));
-        ESP_ERROR_CHECK(gpio_set_direction(gpio_keypad_pin_map[i], GPIO_MODE_INPUT_OUTPUT));
+    // Keypad
+    for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
+        uint8_t col_pin = gpio_keypad_pin_cols[col];
+        ESP_ERROR_CHECK(gpio_reset_pin(gpio_keypad_conn_map[col_pin]));
+        ESP_ERROR_CHECK(gpio_set_direction(gpio_keypad_conn_map[col_pin], GPIO_MODE_OUTPUT));
+        ESP_ERROR_CHECK(gpio_pullup_dis(gpio_keypad_conn_map[col_pin]));
+        ESP_ERROR_CHECK(gpio_pulldown_dis(gpio_keypad_conn_map[col_pin]));
+        ESP_ERROR_CHECK(gpio_set_level(gpio_keypad_conn_map[col_pin], GPIO_LOW));
+    }
+
+    for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
+        uint8_t row_pin = gpio_keypad_pin_rows[row];
+        ESP_ERROR_CHECK(gpio_reset_pin(gpio_keypad_conn_map[row_pin]));
+        ESP_ERROR_CHECK(gpio_set_direction(gpio_keypad_conn_map[row_pin], GPIO_MODE_INPUT));
+        ESP_ERROR_CHECK(gpio_pullup_en(gpio_keypad_conn_map[row_pin]));
+        ESP_ERROR_CHECK(gpio_pulldown_dis(gpio_keypad_conn_map[row_pin]));
     }
 }
 
 uint8_t keyboard_lookup_key() {
-    ESP_ERROR_CHECK(gpio_set_direction(gpio_keypad_pin_map[2], GPIO_MODE_OUTPUT));
-    ESP_ERROR_CHECK(gpio_set_level(gpio_keypad_pin_map[2], GPIO_HIGH));
-    if(gpio_get_level(gpio_keypad_pin_map[3]) == GPIO_HIGH) {
-        return gpio_keypad_pin_map[3];
+    for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
+        uint8_t row_pin = gpio_keypad_pin_rows[row];
+        uint8_t gpio_pin = gpio_keypad_conn_map[row_pin];
+        if(gpio_get_level(gpio_pin) == GPIO_LOW) {
+            // return row_pin;
+            ESP_LOGI(PROJ_NAME, "row %i connected", row_pin);
+        }
     }
 
     return E_KEYPAD_NO_KEY_FOUND;
