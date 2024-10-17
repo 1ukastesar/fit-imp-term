@@ -10,6 +10,13 @@
 #ifndef IMP_TERM_MAIN_H
 #define IMP_TERM_MAIN_H
 
+#include <stdint.h>
+#include <stdnoreturn.h>
+
+#include <esp_log.h>
+
+#include <driver/gpio.h>
+#include <freertos/FreeRTOS.h>
 
 // CONFIGURABLE OPTIONS
 

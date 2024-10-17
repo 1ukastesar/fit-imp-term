@@ -9,8 +9,8 @@
 
 #include <soc/gpio_reg.h>
 
-#include "esp_log.h"
-#include "sdkconfig.h"
+#include <esp_log.h>
+#include <sdkconfig.h>
 
 #include "gpio.h"
 #include "main.h"

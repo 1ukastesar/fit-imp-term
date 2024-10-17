@@ -7,16 +7,6 @@
  * @year 2024
 */
 
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdnoreturn.h>
-
-#include "esp_log.h"
-#include "sdkconfig.h"
-
-#include "freertos/FreeRTOS.h"
-#include "driver/gpio.h"
-
 #include "gpio.h"
 #include "main.h"
 

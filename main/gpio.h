@@ -10,14 +10,11 @@
 #ifndef IMP_TERM_GPIO_H
 #define IMP_TERM_GPIO_H
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdnoreturn.h>
 
-#include "esp_log.h"
-#include "sdkconfig.h"
-
-#include "freertos/FreeRTOS.h"
-#include "driver/gpio.h"
+#include <driver/gpio.h>
+#include <freertos/FreeRTOS.h>
 
 
 // CONFIGURABLE OPTIONS
