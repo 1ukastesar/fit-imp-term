@@ -32,7 +32,6 @@ noreturn void led_heartbeat_task() {
 }
 
 noreturn void check_keyboard_task() {
-    vTaskDelaySec(5);
     while(1) {
         uint8_t key;
         if((key = keyboard_lookup_key()) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
