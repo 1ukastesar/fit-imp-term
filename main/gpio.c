@@ -109,21 +109,27 @@ void gpio_configure()
     ESP_LOGI(PROJ_NAME, "GPIO pins configured");
 }
 
-uint8_t keypad_key_lookup() {
+uint8_t keypad_key_lookup(uint32_t io_num) {
     uint8_t key = E_KEYPAD_NO_KEY_FOUND;
+    uint8_t row;
 
-    *gpio_w1tc_reg = gpio_keypad_col_mask; // Quickly set all columns to LOW
+    // First find out which row was pressed from GPIO number
+    // TODO rewrite this using reverse lookup table
+    for(uint8_t row_i = 0; row_i < array_len(gpio_keypad_pin_rows); row_i++) {
+        if(io_num == map_keypad_row_to_gpio_pin(row_i))
+            row = row_i;
+    }
 
+    // Quickly set all columns to LOW
+    *gpio_w1tc_reg = gpio_keypad_col_mask;
+
+    // Iterate over columns setting each to HIGH and checking if the row goes HIGH
     for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
         uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
         ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_HIGH));
-
-        for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
-            uint8_t row_pin = map_keypad_row_to_gpio_pin(row);
-            if(gpio_get_level(row_pin) == GPIO_HIGH) {
-                key = gpio_pad_map[row][col][0];
-                goto end;
-            }
+        if(gpio_get_level(io_num) == GPIO_HIGH) {
+            key = gpio_pad_map[row][col][0];
+            goto end;
         }
         ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_LOW));
     }
@@ -141,7 +147,7 @@ noreturn void keypad_handler_task()
     while(1) {
         if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
             // printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
-            if((key = keypad_key_lookup()) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
+            if((key = keypad_key_lookup(io_num)) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
                 ESP_LOGI(PROJ_NAME, "key %c pressed", key);
                 // gpio_blink_nonblocking(STATUS_LED, 20);
             } else {
