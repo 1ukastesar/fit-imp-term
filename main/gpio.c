@@ -7,6 +7,8 @@
  * @year 2024
 */
 
+#include <soc/gpio_reg.h>
+
 #include "esp_log.h"
 #include "sdkconfig.h"
 
@@ -36,6 +38,12 @@ static int gpio_keypad_pin_rows[] = {1, 6, 5, 3};
 
 #define map_keypad_col_to_gpio_pin(col) gpio_keypad_conn_map[gpio_keypad_pin_cols[col]]
 #define map_keypad_row_to_gpio_pin(row) gpio_keypad_conn_map[gpio_keypad_pin_rows[row]]
+
+static int gpio_keypad_col_mask = 0;
+static int gpio_keypad_row_mask = 0;
+
+static volatile uint32_t *gpio_w1ts_reg = (volatile uint32_t *) GPIO_OUT_W1TS_REG;
+static volatile uint32_t *gpio_w1tc_reg = (volatile uint32_t *) GPIO_OUT_W1TC_REG;
 
 void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration)
 {
@@ -72,8 +80,10 @@ void gpio_configure()
     col_conf.mode = GPIO_MODE_OUTPUT;
     for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
         uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
-        col_conf.pin_bit_mask |= (1ULL << col_pin);
+        gpio_keypad_col_mask |= (1 << col_pin);
     }
+
+    col_conf.pin_bit_mask = gpio_keypad_col_mask;
 
     gpio_config_t row_conf = {};
     row_conf.intr_type = GPIO_INTR_POSEDGE;
@@ -81,8 +91,10 @@ void gpio_configure()
     row_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
     for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
         uint8_t row_pin = map_keypad_row_to_gpio_pin(row);
-        row_conf.pin_bit_mask |= (1ULL << row_pin);
+        gpio_keypad_row_mask |= (1 << row_pin);
     }
+
+    row_conf.pin_bit_mask = gpio_keypad_row_mask;
 
     ESP_ERROR_CHECK(gpio_config(&col_conf));
     ESP_ERROR_CHECK(gpio_config(&row_conf));
@@ -91,10 +103,7 @@ void gpio_configure()
 }
 
 uint8_t keyboard_lookup_key() {
-    for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
-        uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
-        ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_LOW));
-    }
+    *gpio_w1tc_reg = gpio_keypad_col_mask; // Quickly set all columns to LOW
 
     for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
         uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
