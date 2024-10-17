@@ -49,11 +49,24 @@ static int keypad_gpio_map[] = {
     GPIO_NUM_27     // = pin 7
 };
 
-static void gpio_blink_blocking(const uint8_t gpio_num, const uint32_t duration)
+void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration)
 {
     ESP_ERROR_CHECK(gpio_set_level(gpio_num, GPIO_HIGH));
     vTaskDelayMSec(duration);
     ESP_ERROR_CHECK(gpio_set_level(gpio_num, GPIO_LOW));
+}
+
+static noreturn void gpio_blink_task(void * param) {
+    // struct blink_opt_t * opt = (struct blink_opt_t *) param;
+    uint32_t num_duration = (uint32_t) param;
+    gpio_blink_blocking(num_duration & 0xFF, num_duration >> 8);
+    vTaskDelete(NULL); // Delete self
+    while(1); // Wait for deletion
+}
+
+void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration) {
+    uint32_t num_duration = duration << 8 | gpio_num;
+    xTaskCreate(&gpio_blink_task, "gpio_blink_nonblocking", 1024, (void*) num_duration, 5, NULL);
 }
 
 static void gpio_configure()
