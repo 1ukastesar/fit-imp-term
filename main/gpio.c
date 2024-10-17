@@ -15,16 +15,6 @@
 #include "gpio.h"
 #include "main.h"
 
-static int gpio_keypad_conn_map[] = {
-    GPIO_NUM_5,     // = pin 1
-    GPIO_NUM_23,    // = pin 2
-    GPIO_NUM_26,    // = pin 3
-    GPIO_NUM_25,    // = pin 4
-    GPIO_NUM_17,    // = pin 5
-    GPIO_NUM_16,    // = pin 6
-    GPIO_NUM_27     // = pin 7
-};
-
 char * gpio_pad_map[][3] = {
     {"1", "2", "3"},
     {"4", "5", "6"},
@@ -33,11 +23,11 @@ char * gpio_pad_map[][3] = {
 };
 
 // Rows and columns are not in order
-static int gpio_keypad_pin_cols[] = {2, 0, 4};
-static int gpio_keypad_pin_rows[] = {1, 6, 5, 3};
+static int gpio_keypad_pin_cols[] = {GPIO_NUM_26, GPIO_NUM_5, GPIO_NUM_17};
+static int gpio_keypad_pin_rows[] = {GPIO_NUM_23, GPIO_NUM_27, GPIO_NUM_16, GPIO_NUM_25};
 
-#define map_keypad_col_to_gpio_pin(col) gpio_keypad_conn_map[gpio_keypad_pin_cols[col]]
-#define map_keypad_row_to_gpio_pin(row) gpio_keypad_conn_map[gpio_keypad_pin_rows[row]]
+#define map_keypad_col_to_gpio_pin(col) gpio_keypad_pin_cols[col]
+#define map_keypad_row_to_gpio_pin(row) gpio_keypad_pin_rows[row]
 
 static int gpio_keypad_col_mask = 0;
 static int gpio_keypad_row_mask = 0;
