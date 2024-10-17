@@ -112,6 +112,7 @@ uint8_t keyboard_lookup_key() {
         for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
             uint8_t row_pin = map_keypad_row_to_gpio_pin(row);
             if(gpio_get_level(row_pin) == GPIO_HIGH) {
+                *gpio_w1ts_reg = gpio_keypad_col_mask; // Restore original state (all columns HIGH)
                 return gpio_pad_map[row][col][0];
             }
         }
