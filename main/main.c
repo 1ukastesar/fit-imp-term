@@ -21,7 +21,7 @@
 #include "main.h"
 
 
-noreturn void led_hearbeat_task() {
+noreturn void led_heartbeat_task() {
     // Blink every second indefinitely
     ESP_LOGI(PROJ_NAME, "Heartbeat blink started");
     while(1) {
@@ -35,7 +35,7 @@ noreturn void led_hearbeat_task() {
 void main_task()
 {
     ESP_LOGI(PROJ_NAME, "Executing main task");
-    xTaskCreate(&led_hearbeat_task, "led_hearbeat_task", 2048, NULL, 5, NULL);
+    xTaskCreate(&led_heartbeat_task, "led_heartbeat_task", 2048, NULL, 5, NULL);
     xTaskCreate(&check_keyboard_task, "check_keyboard_task", 2048, NULL, 5, NULL);
 }
 
