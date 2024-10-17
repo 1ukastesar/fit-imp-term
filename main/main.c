@@ -10,7 +10,6 @@
 #include "gpio.h"
 #include "main.h"
 
-
 noreturn void led_heartbeat_task() {
     // Blink every second indefinitely
     ESP_LOGI(PROJ_NAME, "Heartbeat blink started");
