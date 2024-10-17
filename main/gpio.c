@@ -45,6 +45,8 @@ static int gpio_keypad_row_mask = 0;
 static volatile uint32_t *gpio_w1ts_reg = (volatile uint32_t *) GPIO_OUT_W1TS_REG;
 static volatile uint32_t *gpio_w1tc_reg = (volatile uint32_t *) GPIO_OUT_W1TC_REG;
 
+QueueHandle_t gpio_evt_queue = NULL;
+
 void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration)
 {
     ESP_ERROR_CHECK(gpio_set_level(gpio_num, GPIO_HIGH));
@@ -66,6 +68,12 @@ void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration)
     xTaskCreate(&gpio_blink_task, "gpio_blink_nonblocking", 1024, (void*) num_duration, 5, NULL);
 }
 
+static void IRAM_ATTR gpio_keypad_handler(void* arg)
+{
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+}
+
 void gpio_configure()
 {
     ESP_LOGI(PROJ_NAME, "Configuring GPIO pins");
@@ -81,6 +89,7 @@ void gpio_configure()
     for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
         uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
         gpio_keypad_col_mask |= (1 << col_pin);
+        gpio_set_level(col_pin, GPIO_HIGH);
     }
 
     col_conf.pin_bit_mask = gpio_keypad_col_mask;
@@ -99,10 +108,20 @@ void gpio_configure()
     ESP_ERROR_CHECK(gpio_config(&col_conf));
     ESP_ERROR_CHECK(gpio_config(&row_conf));
 
+    gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+
+    ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT));
+    for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
+        uint32_t row_pin = map_keypad_row_to_gpio_pin(row);
+        ESP_ERROR_CHECK(gpio_isr_handler_add(row_pin, &gpio_keypad_handler, (void*) row_pin));
+    }
+
     ESP_LOGI(PROJ_NAME, "GPIO pins configured");
 }
 
 uint8_t keyboard_lookup_key() {
+    uint8_t key = E_KEYPAD_NO_KEY_FOUND;
+
     *gpio_w1tc_reg = gpio_keypad_col_mask; // Quickly set all columns to LOW
 
     for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
@@ -112,22 +131,32 @@ uint8_t keyboard_lookup_key() {
         for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
             uint8_t row_pin = map_keypad_row_to_gpio_pin(row);
             if(gpio_get_level(row_pin) == GPIO_HIGH) {
-                *gpio_w1ts_reg = gpio_keypad_col_mask; // Restore original state (all columns HIGH)
-                return gpio_pad_map[row][col][0];
+                key = gpio_pad_map[row][col][0];
+                goto end;
             }
         }
         ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_LOW));
     }
 
-    return E_KEYPAD_NO_KEY_FOUND;
+    end:
+    *gpio_w1ts_reg = gpio_keypad_col_mask; // Restore original state (all columns HIGH)
+    return key;
 }
 
-noreturn void check_keyboard_task() {
+noreturn void check_keyboard_task()
+{
+    uint8_t key;
+    uint32_t io_num;
+
     while(1) {
-        uint8_t key;
-        if((key = keyboard_lookup_key()) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
-            ESP_LOGI(PROJ_NAME, "key %c pressed", key);
-            gpio_blink_nonblocking(STATUS_LED, 20);
+        if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+            // printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
+            if((key = keyboard_lookup_key()) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
+                ESP_LOGI(PROJ_NAME, "key %c pressed", key);
+                // gpio_blink_nonblocking(STATUS_LED, 20);
+            } else {
+                ESP_LOGI(PROJ_NAME, "No key pressed");
+            }
         }
         vTaskDelayMSec(20);
     }
