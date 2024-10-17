@@ -15,6 +15,7 @@
         "optional": "c",
         "format": "c",
         "utility": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "cstdint": "c"
     }
 }
