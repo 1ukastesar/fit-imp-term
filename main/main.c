@@ -37,6 +37,17 @@
 #define vTaskDelayMSec(milis) vTaskDelay(milis              / portTICK_PERIOD_MS)
 #define vTaskDelaySec(milis)  vTaskDelay(milis * ms_in_s    / portTICK_PERIOD_MS)
 
+#define array_len(arr) (sizeof(arr) / sizeof(arr[0]))
+
+static int keypad_gpio_map[] = {
+    GPIO_NUM_5,     // = pin 1
+    GPIO_NUM_23,    // = pin 2
+    GPIO_NUM_26,    // = pin 3
+    GPIO_NUM_25,    // = pin 4
+    GPIO_NUM_17,    // = pin 5
+    GPIO_NUM_16,    // = pin 6
+    GPIO_NUM_27     // = pin 7
+};
 
 static void gpio_blink_blocking(const uint8_t gpio_num, const uint32_t duration)
 {
