@@ -25,9 +25,12 @@ noreturn void led_heartbeat_task() {
     // Blink every second indefinitely
     ESP_LOGI(PROJ_NAME, "Heartbeat blink started");
     while(1) {
-        if(gpio_get_level(STATUS_LED) == GPIO_LOW) // Not currently used by other tasks
+        if(gpio_get_level(STATUS_LED) == GPIO_LOW) { // Not currently used by other tasks
             gpio_blink_blocking(STATUS_LED, seconds(0.1));
-        vTaskDelaySec(0.9);
+            vTaskDelaySec(0.1);
+            gpio_blink_blocking(STATUS_LED, seconds(0.1));
+        }
+        vTaskDelaySec(0.7);
     }
 }
 
