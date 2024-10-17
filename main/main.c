@@ -1,5 +1,5 @@
 /*
- * @file main.c
+ * @file main/main.c
  *
  * @proj imp-term
  * @brief Access terminal with ESP32 - IMP semestral project

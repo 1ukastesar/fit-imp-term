@@ -1,5 +1,5 @@
 /*
- * @file gpio.c
+ * @file main/gpio.h
  *
  * @proj imp-term
  * @brief GPIO related functions
