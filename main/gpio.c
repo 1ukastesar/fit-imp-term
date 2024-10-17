@@ -119,7 +119,7 @@ void gpio_configure()
     ESP_LOGI(PROJ_NAME, "GPIO pins configured");
 }
 
-uint8_t keyboard_lookup_key() {
+uint8_t keypad_key_lookup() {
     uint8_t key = E_KEYPAD_NO_KEY_FOUND;
 
     *gpio_w1tc_reg = gpio_keypad_col_mask; // Quickly set all columns to LOW
@@ -143,7 +143,7 @@ uint8_t keyboard_lookup_key() {
     return key;
 }
 
-noreturn void check_keyboard_task()
+noreturn void keypad_handler_task()
 {
     uint8_t key;
     uint32_t io_num;
@@ -151,7 +151,7 @@ noreturn void check_keyboard_task()
     while(1) {
         if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
             // printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
-            if((key = keyboard_lookup_key()) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
+            if((key = keypad_key_lookup()) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
                 ESP_LOGI(PROJ_NAME, "key %c pressed", key);
                 // gpio_blink_nonblocking(STATUS_LED, 20);
             } else {

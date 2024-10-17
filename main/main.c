@@ -27,8 +27,8 @@ noreturn void led_heartbeat_task() {
 void main_task()
 {
     ESP_LOGI(PROJ_NAME, "Executing main task");
-    xTaskCreate(&led_heartbeat_task, "led_heartbeat_task", 2048, NULL, 5, NULL);
-    xTaskCreate(&check_keyboard_task, "check_keyboard_task", 2048, NULL, 5, NULL);
+    xTaskCreate(&led_heartbeat_task, "led_heartbeat", 2048, NULL, 5, NULL);
+    xTaskCreate(&keypad_handler_task, "keypad_handler", 2048, NULL, 5, NULL);
 }
 
 void app_main(void)
