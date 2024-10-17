@@ -78,7 +78,7 @@ void gpio_configure()
     gpio_config_t row_conf = {};
     row_conf.intr_type = GPIO_INTR_POSEDGE;
     row_conf.mode = GPIO_MODE_INPUT;
-    row_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+    row_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
     for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
         uint8_t row_pin = map_keypad_row_to_gpio_pin(row);
         row_conf.pin_bit_mask |= (1ULL << row_pin);
@@ -86,27 +86,27 @@ void gpio_configure()
 
     ESP_ERROR_CHECK(gpio_config(&col_conf));
     ESP_ERROR_CHECK(gpio_config(&row_conf));
+
+    ESP_LOGI(PROJ_NAME, "GPIO pins configured");
 }
 
 uint8_t keyboard_lookup_key() {
     for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
         uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
-        ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_HIGH));
+        ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_LOW));
     }
 
     for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
         uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
-        ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_LOW));
+        ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_HIGH));
 
         for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
             uint8_t row_pin = map_keypad_row_to_gpio_pin(row);
-            if(gpio_get_level(row_pin) == GPIO_LOW) {
-                // ESP_LOGI(PROJ_NAME, "row %i connected", row);
-                // return row;
-                // ESP_LOGI(PROJ_NAME, "key %s pressed", gpio_pad_map[row][col]);
-                // return gpio_pad_map[row][col][0];
+            if(gpio_get_level(row_pin) == GPIO_HIGH) {
+                return gpio_pad_map[row][col][0];
             }
         }
+        ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_LOW));
     }
 
     return E_KEYPAD_NO_KEY_FOUND;
