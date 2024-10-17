@@ -30,8 +30,9 @@ char * gpio_pad_map[][3] = {
     {"*", "0", "#"}
 };
 
-static int gpio_keypad_pin_cols[] = {0, 2, 4};
-static int gpio_keypad_pin_rows[] = {1, 3, 5, 6};
+// Rows and columns are not in order
+static int gpio_keypad_pin_cols[] = {2, 0, 4};
+static int gpio_keypad_pin_rows[] = {1, 6, 5, 3};
 
 void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration)
 {
