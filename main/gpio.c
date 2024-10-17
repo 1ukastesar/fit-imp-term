@@ -89,11 +89,23 @@ void gpio_configure()
 }
 
 uint8_t keyboard_lookup_key() {
-    for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
-        uint8_t row_pin = map_keypad_row_to_gpio_pin(row);
-        if(gpio_get_level(row_pin) == GPIO_LOW) {
-            ESP_LOGI(PROJ_NAME, "row %i connected", row);
-            // return row;
+    for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
+        uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
+        ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_HIGH));
+    }
+
+    for(uint8_t col = 0; col < array_len(gpio_keypad_pin_cols); col++) {
+        uint8_t col_pin = map_keypad_col_to_gpio_pin(col);
+        ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_LOW));
+
+        for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
+            uint8_t row_pin = map_keypad_row_to_gpio_pin(row);
+            if(gpio_get_level(row_pin) == GPIO_LOW) {
+                // ESP_LOGI(PROJ_NAME, "row %i connected", row);
+                // return row;
+                // ESP_LOGI(PROJ_NAME, "key %s pressed", gpio_pad_map[row][col]);
+                // return gpio_pad_map[row][col][0];
+            }
         }
     }
 
