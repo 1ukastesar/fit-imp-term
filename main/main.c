@@ -39,7 +39,7 @@
 
 #define array_len(arr) (sizeof(arr) / sizeof(arr[0]))
 
-static int keypad_gpio_map[] = {
+static int gpio_keypad_pin_map[] = {
     GPIO_NUM_5,     // = pin 1
     GPIO_NUM_23,    // = pin 2
     GPIO_NUM_26,    // = pin 3
