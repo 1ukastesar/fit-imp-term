@@ -10,9 +10,11 @@
 #ifndef IMP_TERM_MAIN_H
 #define IMP_TERM_MAIN_H
 
+
 // CONFIGURABLE OPTIONS
 
 #define PROJ_NAME "imp-term"
+
 
 // CONVENIENCE DEFINITIONS
 
@@ -23,5 +25,6 @@
 #define vTaskDelaySec(milis)  vTaskDelay(milis * ms_in_s    / portTICK_PERIOD_MS)
 
 #define array_len(arr) (sizeof(arr) / sizeof(arr[0]))
+
 
 #endif // IMP_TERM_MAIN_H
