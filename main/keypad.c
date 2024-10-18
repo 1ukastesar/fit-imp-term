@@ -120,12 +120,11 @@ void keypad_keypress_handler(char key_pressed)
             break;
         default:
             pin[pin_index++] = key_pressed;
-            break;
-    }
-
-    if(pin_index >= sizeof(pin)) {
-        ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
-        keypad_clear_pin(pin, &pin_index);
+            if(pin_index >= sizeof(pin)) {
+                ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
+                keypad_clear_pin(pin, &pin_index);
+            }
+            return;
     }
 }
 
