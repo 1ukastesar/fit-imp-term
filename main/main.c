@@ -28,17 +28,24 @@ noreturn void led_heartbeat_task() {
     }
 }
 
-void main_task()
-{
-    ESP_LOGI(PROJ_NAME, "Executing main task");
-    // xTaskCreate(&led_heartbeat_task, "led_heartbeat", 2048, NULL, 5, NULL); // Uncomment to enable heartbeat
-    xTaskCreate(&keypad_handler_task, "keypad_handler", 2048, NULL, 5, NULL);
-}
-
 void app_main(void)
 {
-    gpio_configure();
+    // Initialization
     vTaskDelaySec(2); // Wait for serial monitor to connect
+    gpio_configure();
     nvs_configure();
-    main_task();
+
+    ESP_LOGI(PROJ_NAME, "Initialization complete");
+    ESP_LOGI(PROJ_NAME, "Starting tasks...");
+
+    // Create long-running tasks
+    // Uncomment to enable heartbeat
+    // if(xTaskCreate(&led_heartbeat_task, "led_heartbeat", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
+    //     ESP_LOGE(PROJ_NAME, "Failed to create heartbeat task");
+    //     abort();
+    // }
+    if(xTaskCreate(&keypad_handler_task, "keypad_handler", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
+        ESP_LOGE(PROJ_NAME, "Failed to create keypad handler task");
+        abort();
+    }
 }
