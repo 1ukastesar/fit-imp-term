@@ -76,6 +76,18 @@ static esp_err_t check_pin(char * pin_to_check, bool * is_correct)
     return ESP_OK;
 }
 
+void keypad_clear_pin(char * pin, uint8_t * pin_index)
+{
+    if(strlen(pin) == 0) {
+        ESP_LOGD(PROJ_NAME, "PIN already empty");
+        return;
+    }
+    ESP_LOGI(PROJ_NAME, "Clearing sequence: %s", pin);
+    memset(pin, 0, strlen(pin));
+    ESP_LOGD(PROJ_NAME, "Sequence cleared, new length: %d", strlen(pin));
+    *pin_index = 0;
+}
+
 void keypad_keypress_handler(char key_pressed)
 {
     ESP_LOGI(PROJ_NAME, "Key %c pressed", key_pressed);
@@ -90,16 +102,16 @@ void keypad_keypress_handler(char key_pressed)
 
     switch(key_pressed) {
         case KEYPAD_PIN_SUBMIT_KEY:
-            ESP_LOGI(PROJ_NAME, "Requested submit: %c", KEYPAD_PIN_SUBMIT_KEY);
+            ESP_LOGI(PROJ_NAME, "Requested submit");
             ESP_LOGI(PROJ_NAME, "Validating pin: %s", access_pin);
             bool is_correct;
             ESP_ERROR_CHECK(check_pin(access_pin, &is_correct));
-            memset(access_pin, 0, sizeof(access_pin));
-            pin_index = 0;
+            keypad_clear_pin(access_pin, &pin_index);
             break;
         case KEYPAD_PIN_CHANGE_KEY:
-            ESP_LOGI(PROJ_NAME, "Requested pin change: %c", KEYPAD_PIN_CHANGE_KEY);
+            ESP_LOGI(PROJ_NAME, "Requested pin change");
             pin_state = PIN_CHANGE_REQUEST;
+            keypad_clear_pin(access_pin, &pin_index);
             break;
         default:
             access_pin[pin_index++] = key_pressed;
@@ -108,8 +120,7 @@ void keypad_keypress_handler(char key_pressed)
 
     if(pin_index >= sizeof(access_pin)) {
         ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
-        memset(access_pin, 0, sizeof(access_pin));
-        pin_index = 0;
+        keypad_clear_pin(access_pin, &pin_index);
     }
 }
 
