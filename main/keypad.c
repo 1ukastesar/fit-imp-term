@@ -170,7 +170,7 @@ void keypad_keypress_handler(char key_pressed)
             pin[pin_index++] = key_pressed;
             if(pin_index >= sizeof(pin)) {
                 ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
-                keypad_clear_pin(pin, &pin_index);
+                break;
             }
             return;
     }
