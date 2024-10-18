@@ -96,3 +96,19 @@ void keypad_keypress_handler(char key_pressed) {
     }
 
 }
+
+noreturn void keypad_handler_task()
+{
+    uint8_t key;
+    uint32_t io_num;
+
+    while(1) {
+        if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+            // printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
+            if((key = gpio_keypad_key_lookup(io_num)) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
+                keypad_keypress_handler(key);
+            }
+        }
+        xQueueReset(gpio_evt_queue);
+    }
+}

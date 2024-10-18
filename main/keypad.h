@@ -17,7 +17,7 @@
 // EXPORTED SYMBOLS
 
 void nvs_configure();
-void keypad_keypress_handler(char key_pressed);
+noreturn void keypad_handler_task();
 
 
 #endif // IMP_TERM_KEYPAD_H
