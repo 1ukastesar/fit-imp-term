@@ -57,7 +57,7 @@ void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration)
     xTaskCreate(&gpio_blink_task, "gpio_blink_nonblocking", 1024, (void*) num_duration, 5, NULL);
 }
 
-static void IRAM_ATTR gpio_keypad_handler(void* arg)
+static void IRAM_ATTR gpio_keypad_interrupt(void* arg)
 {
     uint32_t gpio_num = (uint32_t) arg;
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
@@ -102,13 +102,13 @@ void gpio_configure()
     ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT));
     for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
         uint32_t row_pin = map_keypad_row_to_gpio_pin(row);
-        ESP_ERROR_CHECK(gpio_isr_handler_add(row_pin, &gpio_keypad_handler, (void*) row_pin));
+        ESP_ERROR_CHECK(gpio_isr_handler_add(row_pin, &gpio_keypad_interrupt, (void*) row_pin));
     }
 
     ESP_LOGI(PROJ_NAME, "GPIO pins configured");
 }
 
-uint8_t keypad_key_lookup(uint32_t io_num) {
+uint8_t gpio_keypad_key_lookup(uint32_t io_num) {
     uint8_t key = E_KEYPAD_NO_KEY_FOUND;
     uint8_t row;
 
@@ -146,7 +146,7 @@ noreturn void keypad_handler_task()
     while(1) {
         if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
             // printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
-            if((key = keypad_key_lookup(io_num)) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
+            if((key = gpio_keypad_key_lookup(io_num)) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
                 ESP_LOGI(PROJ_NAME, "key %c pressed", key);
                 gpio_blink_nonblocking(STATUS_LED, 20);
             }
