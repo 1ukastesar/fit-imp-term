@@ -92,7 +92,7 @@ void keypad_clear_pin(char * pin, uint8_t * pin_index)
         ESP_LOGD(PROJ_NAME, "PIN already empty");
         return;
     }
-    ESP_LOGI(PROJ_NAME, "Clearing sequence: %s", pin);
+    ESP_LOGD(PROJ_NAME, "Clearing sequence: %s", pin);
     memset(pin, 0, strlen(pin));
     ESP_LOGD(PROJ_NAME, "Sequence cleared, new length: %d", strlen(pin));
     *pin_index = 0;
@@ -134,6 +134,7 @@ void keypad_keypress_handler(char key_pressed)
                     ESP_ERROR_CHECK(check_pin(pin, "admin_pin", &is_correct));
                     if(is_correct) {
                         ESP_LOGI(PROJ_NAME, "Admin access granted");
+                        ESP_LOGI(PROJ_NAME, "Enter new PIN");
                         pin_state = PIN_CHANGE_ENTER_NEW;
                     } else {
                         ESP_LOGI(PROJ_NAME, "Admin access denied");
@@ -141,13 +142,12 @@ void keypad_keypress_handler(char key_pressed)
                     break;
 
                 case PIN_CHANGE_ENTER_NEW:
-                    ESP_LOGI(PROJ_NAME, "Writing new PIN");
                     ESP_ERROR_CHECK(write_pin(pin, "new_pin"));
+                    ESP_LOGI(PROJ_NAME, "Confirm new PIN");
                     pin_state = PIN_CHANGE_CONFIRM;
                     break;
 
                 case PIN_CHANGE_CONFIRM:
-                    ESP_LOGI(PROJ_NAME, "Checking new PIN");
                     ESP_ERROR_CHECK(check_pin(pin, "new_pin", &is_correct));
                     if(is_correct) {
                         ESP_LOGI(PROJ_NAME, "PIN change confirmed");
@@ -163,6 +163,7 @@ void keypad_keypress_handler(char key_pressed)
 
         case KEYPAD_PIN_CHANGE_KEY:
             ESP_LOGI(PROJ_NAME, "Requested pin change");
+            ESP_LOGI(PROJ_NAME, "Enter admin PIN");
             pin_state = PIN_CHANGE_AUTH;
             break;
 
