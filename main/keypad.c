@@ -16,15 +16,13 @@
 #include <esp_log.h>
 #include <esp_check.h>
 
-#define KEYPAD_STORAGE "keypad"
-
 nvs_handle_t keypad_nvs_handle;
 
 void nvs_set_defaults()
 {
     char access_pin[] = "1234";
     char admin_pin[] = "00000000";
-    ESP_ERROR_CHECK(nvs_open(KEYPAD_STORAGE, NVS_READWRITE, &keypad_nvs_handle));
+    ESP_ERROR_CHECK(nvs_open(KEYPAD_STORAGE_NS, NVS_READWRITE, &keypad_nvs_handle));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "access_pin", access_pin));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "admin_pin", admin_pin));
     ESP_ERROR_CHECK(nvs_commit(keypad_nvs_handle));
@@ -47,9 +45,9 @@ void nvs_configure()
     ESP_ERROR_CHECK(err);
 
     // Set defaults if storage is empty
-    err = nvs_open(KEYPAD_STORAGE, NVS_READONLY, &keypad_nvs_handle);
+    err = nvs_open(KEYPAD_STORAGE_NS, NVS_READONLY, &keypad_nvs_handle);
     if(err == ESP_ERR_NVS_NOT_FOUND) {
-        ESP_LOGE(PROJ_NAME, "Namespace not found, setting defaults");
+        ESP_LOGE(PROJ_NAME, "Storage not initialized, setting defaults");
         nvs_close(keypad_nvs_handle);
         nvs_set_defaults();
     } else {
@@ -63,7 +61,7 @@ static esp_err_t check_pin(char * pin_to_check, bool * is_correct)
 {
     char pin_set[5] = {0};
     size_t len = sizeof(pin_set);
-    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NS, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_get_str(keypad_nvs_handle, "access_pin", pin_set, &len), "Error reading PIN from NVS", PROJ_NAME);
 
     if(strcmp(pin_to_check, pin_set) == 0) {
@@ -80,25 +78,39 @@ static esp_err_t check_pin(char * pin_to_check, bool * is_correct)
 
 void keypad_keypress_handler(char key_pressed)
 {
-    ESP_LOGI(PROJ_NAME, "key %c pressed", key_pressed);
+    ESP_LOGI(PROJ_NAME, "Key %c pressed", key_pressed);
     gpio_blink_nonblocking(STATUS_LED, 20);
 
-    static char access_pin[5] = {0};
+    static char access_pin[KEYPAD_PIN_MAX_LEN] = {0};
     static uint8_t pin_index = 0;
+    static enum {
+        PIN_ENTER,
+        PIN_CHANGE_REQUEST
+    } pin_state = PIN_ENTER;
 
     switch(key_pressed) {
-        case '#':
-            ESP_LOGI(PROJ_NAME, "access pin: %s", access_pin);
+        case KEYPAD_PIN_SUBMIT_KEY:
+            ESP_LOGI(PROJ_NAME, "Requested submit: %c", KEYPAD_PIN_SUBMIT_KEY);
+            ESP_LOGI(PROJ_NAME, "Validating pin: %s", access_pin);
             bool is_correct;
             ESP_ERROR_CHECK(check_pin(access_pin, &is_correct));
             memset(access_pin, 0, sizeof(access_pin));
             pin_index = 0;
+            break;
+        case KEYPAD_PIN_CHANGE_KEY:
+            ESP_LOGI(PROJ_NAME, "Requested pin change: %c", KEYPAD_PIN_CHANGE_KEY);
+            pin_state = PIN_CHANGE_REQUEST;
             break;
         default:
             access_pin[pin_index++] = key_pressed;
             break;
     }
 
+    if(pin_index >= sizeof(access_pin)) {
+        ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
+        memset(access_pin, 0, sizeof(access_pin));
+        pin_index = 0;
+    }
 }
 
 noreturn void keypad_handler_task()
@@ -108,7 +120,7 @@ noreturn void keypad_handler_task()
 
     while(1) {
         if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-            // printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
+            // ESP_LOGI(PROJ_NAME, "GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
             if((key = gpio_keypad_key_lookup(io_num)) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
                 keypad_keypress_handler(key);
             }

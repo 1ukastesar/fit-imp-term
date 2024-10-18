@@ -13,6 +13,13 @@
 #include <nvs.h>
 #include <nvs_flash.h>
 
+// CONFIGURABLE OPTIONS
+
+#define KEYPAD_STORAGE_NS "keypad"
+#define KEYPAD_PIN_MAX_LEN 10
+#define KEYPAD_PIN_SUBMIT_KEY '#'
+#define KEYPAD_PIN_CHANGE_KEY '*'
+
 
 // EXPORTED SYMBOLS
 
