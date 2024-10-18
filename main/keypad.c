@@ -59,6 +59,7 @@ void nvs_configure()
 
 static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, bool * is_correct)
 {
+    *is_correct = false;
     char pin_set[KEYPAD_PIN_MAX_LEN] = {0};
     size_t len = sizeof(pin_set);
     ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NS, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
@@ -99,12 +100,12 @@ void keypad_keypress_handler(char key_pressed)
         PIN_ENTER,
         PIN_CHANGE_REQUEST
     } pin_state = PIN_ENTER;
+    bool is_correct = false;
 
     switch(key_pressed) {
         case KEYPAD_PIN_SUBMIT_KEY:
             ESP_LOGI(PROJ_NAME, "Requested submit");
             ESP_LOGI(PROJ_NAME, "Validating pin: %s", pin);
-            bool is_correct;
             ESP_ERROR_CHECK(check_pin(
                                 pin,
                                 pin_state == PIN_CHANGE_REQUEST ? "admin_pin" : "access_pin",
