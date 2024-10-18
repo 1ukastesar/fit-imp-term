@@ -7,10 +7,9 @@
  * @year 2024
 */
 
-#include <soc/gpio_reg.h>
-
 #include <esp_log.h>
-#include <sdkconfig.h>
+
+#include <soc/gpio_reg.h>
 
 #include "gpio.h"
 #include "main.h"

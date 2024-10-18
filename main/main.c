@@ -7,6 +7,10 @@
  * @year 2024
 */
 
+#include <esp_log.h>
+#include <nvs.h>
+#include <nvs_flash.h>
+
 #include "gpio.h"
 #include "main.h"
 

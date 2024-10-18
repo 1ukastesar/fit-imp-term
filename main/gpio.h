@@ -43,4 +43,5 @@ noreturn void keypad_handler_task();
 
 extern QueueHandle_t gpio_evt_queue;
 
+
 #endif // IMP_TERM_GPIO_H
