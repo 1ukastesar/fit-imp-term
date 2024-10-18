@@ -37,6 +37,7 @@
 
 void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration);
 void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration);
+void gpio_blink_success_nonblocking(const uint32_t gpio_num);
 void gpio_configure();
 uint8_t gpio_keypad_key_lookup();
 noreturn void keypad_handler_task();

@@ -59,6 +59,21 @@ void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration)
     xTaskCreate(&gpio_blink_task, "gpio_blink_nonblocking", 1024, (void*) num_duration, 5, NULL);
 }
 
+static noreturn void gpio_blink_success_task(void * param)
+{
+    uint32_t gpio_num = (uint32_t) param;
+    gpio_blink_blocking(gpio_num, seconds(0.05));
+    vTaskDelaySec(0.1);
+    gpio_blink_blocking(gpio_num, seconds(0.05));
+    vTaskDelete(NULL); // Delete self
+    while(1); // Wait for deletion
+}
+
+void gpio_blink_success_nonblocking(const uint32_t gpio_num)
+{
+    xTaskCreate(&gpio_blink_success_task, "gpio_blink_success", 1024, (void*) gpio_num, 5, NULL);
+}
+
 static void IRAM_ATTR gpio_keypad_interrupt(void* arg)
 {
     uint32_t gpio_num = (uint32_t) arg;

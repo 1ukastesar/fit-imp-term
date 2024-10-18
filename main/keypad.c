@@ -101,7 +101,6 @@ void keypad_clear_pin(char * pin, uint8_t * pin_index)
 void keypad_keypress_handler(char key_pressed)
 {
     ESP_LOGI(PROJ_NAME, "Key %c pressed", key_pressed);
-    gpio_blink_nonblocking(STATUS_LED, 20);
 
     static char pin[KEYPAD_PIN_MAX_LEN] = {0};
     static uint8_t pin_index = 0;
@@ -112,6 +111,12 @@ void keypad_keypress_handler(char key_pressed)
         PIN_CHANGE_ENTER_NEW,
         PIN_CHANGE_CONFIRM
     } pin_state = PIN_AUTH;
+
+    enum {
+        NONE,
+        SUCCESS,
+        FAIL
+    } error_state = NONE;
 
     bool is_correct = false;
 
@@ -124,8 +129,10 @@ void keypad_keypress_handler(char key_pressed)
                     ESP_ERROR_CHECK(check_pin(pin, "access_pin", &is_correct));
                     if(is_correct) {
                         ESP_LOGI(PROJ_NAME, "Access granted");
+                        error_state = SUCCESS;
                     } else {
                         ESP_LOGI(PROJ_NAME, "Access denied");
+                        error_state = FAIL;
                     }
                     break;
 
@@ -136,8 +143,10 @@ void keypad_keypress_handler(char key_pressed)
                         ESP_LOGI(PROJ_NAME, "Admin access granted");
                         ESP_LOGI(PROJ_NAME, "Enter new PIN");
                         pin_state = PIN_CHANGE_ENTER_NEW;
+                        error_state = SUCCESS;
                     } else {
                         ESP_LOGI(PROJ_NAME, "Admin access denied");
+                        error_state = FAIL;
                     }
                     break;
 
@@ -145,6 +154,7 @@ void keypad_keypress_handler(char key_pressed)
                     ESP_ERROR_CHECK(write_pin(pin, "new_pin"));
                     ESP_LOGI(PROJ_NAME, "Confirm new PIN");
                     pin_state = PIN_CHANGE_CONFIRM;
+                    error_state = SUCCESS;
                     break;
 
                 case PIN_CHANGE_CONFIRM:
@@ -153,9 +163,11 @@ void keypad_keypress_handler(char key_pressed)
                         ESP_LOGI(PROJ_NAME, "PIN change confirmed");
                         ESP_ERROR_CHECK(write_pin(pin, "access_pin"));
                         pin_state = PIN_AUTH;
+                        error_state = SUCCESS;
                     } else {
                         ESP_LOGI(PROJ_NAME, "PINs do not match, try again");
                         pin_state = PIN_CHANGE_ENTER_NEW;
+                        error_state = FAIL;
                     }
                     break;
             }
@@ -165,6 +177,7 @@ void keypad_keypress_handler(char key_pressed)
             ESP_LOGI(PROJ_NAME, "Requested pin change");
             ESP_LOGI(PROJ_NAME, "Enter admin PIN");
             pin_state = PIN_CHANGE_AUTH;
+            gpio_blink_nonblocking(STATUS_LED, 20);
             break;
 
         default:
@@ -173,7 +186,15 @@ void keypad_keypress_handler(char key_pressed)
                 ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
                 break;
             }
+            gpio_blink_nonblocking(STATUS_LED, 20);
             return;
+    }
+
+    if(error_state == SUCCESS) {
+        gpio_blink_success_nonblocking(STATUS_LED);
+    } else if(error_state == FAIL) {
+        vTaskDelaySec(1.5); // Security delay
+        gpio_blink_blocking(STATUS_LED, seconds(2));
     }
     keypad_clear_pin(pin, &pin_index);
 }
