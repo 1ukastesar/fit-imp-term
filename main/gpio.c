@@ -15,7 +15,8 @@
 #include "main.h"
 #include "keypad.h"
 
-char * gpio_pad_map[][3] = {
+char * gpio_pad_map[][3] = 
+{
     {"1", "2", "3"},
     {"4", "5", "6"},
     {"7", "8", "9"},
@@ -109,7 +110,8 @@ void gpio_configure()
     ESP_LOGI(PROJ_NAME, "GPIO pins configured");
 }
 
-uint8_t gpio_keypad_key_lookup(uint32_t io_num) {
+uint8_t gpio_keypad_key_lookup(uint32_t io_num)
+{
     uint8_t key = E_KEYPAD_NO_KEY_FOUND;
     uint8_t row;
 

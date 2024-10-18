@@ -20,7 +20,8 @@
 
 nvs_handle_t keypad_nvs_handle;
 
-void nvs_set_defaults() {
+void nvs_set_defaults()
+{
     char access_pin[] = "1234";
     char admin_pin[] = "00000000";
     ESP_ERROR_CHECK(nvs_open(KEYPAD_STORAGE, NVS_READWRITE, &keypad_nvs_handle));
@@ -31,7 +32,8 @@ void nvs_set_defaults() {
     ESP_LOGE(PROJ_NAME, "Defaults set:\n\tAccess PIN: %s\n\tAdmin PIN: %s", access_pin, admin_pin);
 }
 
-void nvs_configure() {
+void nvs_configure()
+{
     ESP_LOGI(PROJ_NAME, "Configuring NVS");
     // Initialize NVS
     esp_err_t err = nvs_flash_init();
@@ -57,7 +59,8 @@ void nvs_configure() {
     ESP_LOGI(PROJ_NAME, "NVS configured");
 }
 
-static esp_err_t check_pin(char * pin_to_check, bool * is_correct) {
+static esp_err_t check_pin(char * pin_to_check, bool * is_correct)
+{
     char pin_set[5] = {0};
     size_t len = sizeof(pin_set);
     ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
@@ -75,7 +78,8 @@ static esp_err_t check_pin(char * pin_to_check, bool * is_correct) {
     return ESP_OK;
 }
 
-void keypad_keypress_handler(char key_pressed) {
+void keypad_keypress_handler(char key_pressed)
+{
     ESP_LOGI(PROJ_NAME, "key %c pressed", key_pressed);
     gpio_blink_nonblocking(STATUS_LED, 20);
 
