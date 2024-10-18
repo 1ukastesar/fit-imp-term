@@ -57,12 +57,12 @@ void nvs_configure()
     ESP_LOGI(PROJ_NAME, "NVS configured");
 }
 
-static esp_err_t check_pin(char * pin_to_check, bool * is_correct)
+static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, bool * is_correct)
 {
-    char pin_set[5] = {0};
+    char pin_set[KEYPAD_PIN_MAX_LEN] = {0};
     size_t len = sizeof(pin_set);
     ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NS, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
-    ESP_RETURN_ON_ERROR(nvs_get_str(keypad_nvs_handle, "access_pin", pin_set, &len), "Error reading PIN from NVS", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_get_str(keypad_nvs_handle, pin_name, pin_set, &len), "Error reading PIN from NVS", PROJ_NAME);
 
     if(strcmp(pin_to_check, pin_set) == 0) {
         ESP_LOGI(PROJ_NAME, "PIN correct");
@@ -93,7 +93,7 @@ void keypad_keypress_handler(char key_pressed)
     ESP_LOGI(PROJ_NAME, "Key %c pressed", key_pressed);
     gpio_blink_nonblocking(STATUS_LED, 20);
 
-    static char access_pin[KEYPAD_PIN_MAX_LEN] = {0};
+    static char pin[KEYPAD_PIN_MAX_LEN] = {0};
     static uint8_t pin_index = 0;
     static enum {
         PIN_ENTER,
@@ -103,24 +103,28 @@ void keypad_keypress_handler(char key_pressed)
     switch(key_pressed) {
         case KEYPAD_PIN_SUBMIT_KEY:
             ESP_LOGI(PROJ_NAME, "Requested submit");
-            ESP_LOGI(PROJ_NAME, "Validating pin: %s", access_pin);
+            ESP_LOGI(PROJ_NAME, "Validating pin: %s", pin);
             bool is_correct;
-            ESP_ERROR_CHECK(check_pin(access_pin, &is_correct));
-            keypad_clear_pin(access_pin, &pin_index);
+            ESP_ERROR_CHECK(check_pin(
+                                pin,
+                                pin_state == PIN_CHANGE_REQUEST ? "admin_pin" : "access_pin",
+                                &is_correct)
+                            );
+            keypad_clear_pin(pin, &pin_index);
             break;
         case KEYPAD_PIN_CHANGE_KEY:
             ESP_LOGI(PROJ_NAME, "Requested pin change");
             pin_state = PIN_CHANGE_REQUEST;
-            keypad_clear_pin(access_pin, &pin_index);
+            keypad_clear_pin(pin, &pin_index);
             break;
         default:
-            access_pin[pin_index++] = key_pressed;
+            pin[pin_index++] = key_pressed;
             break;
     }
 
-    if(pin_index >= sizeof(access_pin)) {
+    if(pin_index >= sizeof(pin)) {
         ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
-        keypad_clear_pin(access_pin, &pin_index);
+        keypad_clear_pin(pin, &pin_index);
     }
 }
 
