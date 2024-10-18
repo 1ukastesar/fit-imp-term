@@ -77,6 +77,15 @@ static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, boo
     return ESP_OK;
 }
 
+static esp_err_t write_pin(const char * pin_to_write, const char * pin_name)
+{
+    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NS, NVS_READWRITE, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_set_str(keypad_nvs_handle, pin_name, pin_to_write), "Error writing PIN to NVS", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_commit(keypad_nvs_handle), "Error committing changes", PROJ_NAME);
+    nvs_close(keypad_nvs_handle);
+    return ESP_OK;
+}
+
 void keypad_clear_pin(char * pin, uint8_t * pin_index)
 {
     if(strlen(pin) == 0) {
@@ -96,28 +105,67 @@ void keypad_keypress_handler(char key_pressed)
 
     static char pin[KEYPAD_PIN_MAX_LEN] = {0};
     static uint8_t pin_index = 0;
+
     static enum {
-        PIN_ENTER,
-        PIN_CHANGE_REQUEST
-    } pin_state = PIN_ENTER;
+        PIN_AUTH,
+        PIN_CHANGE_AUTH,
+        PIN_CHANGE_ENTER_NEW,
+        PIN_CHANGE_CONFIRM
+    } pin_state = PIN_AUTH;
+
     bool is_correct = false;
 
     switch(key_pressed) {
         case KEYPAD_PIN_SUBMIT_KEY:
             ESP_LOGI(PROJ_NAME, "Requested submit");
-            ESP_LOGI(PROJ_NAME, "Validating pin: %s", pin);
-            ESP_ERROR_CHECK(check_pin(
-                                pin,
-                                pin_state == PIN_CHANGE_REQUEST ? "admin_pin" : "access_pin",
-                                &is_correct)
-                            );
-            keypad_clear_pin(pin, &pin_index);
+            switch(pin_state) {
+                case PIN_AUTH:
+                    ESP_LOGI(PROJ_NAME, "Checking access PIN");
+                    ESP_ERROR_CHECK(check_pin(pin, "access_pin", &is_correct));
+                    if(is_correct) {
+                        ESP_LOGI(PROJ_NAME, "Access granted");
+                    } else {
+                        ESP_LOGI(PROJ_NAME, "Access denied");
+                    }
+                    break;
+
+                case PIN_CHANGE_AUTH:
+                    ESP_LOGI(PROJ_NAME, "Checking admin PIN");
+                    ESP_ERROR_CHECK(check_pin(pin, "admin_pin", &is_correct));
+                    if(is_correct) {
+                        ESP_LOGI(PROJ_NAME, "Admin access granted");
+                        pin_state = PIN_CHANGE_ENTER_NEW;
+                    } else {
+                        ESP_LOGI(PROJ_NAME, "Admin access denied");
+                    }
+                    break;
+
+                case PIN_CHANGE_ENTER_NEW:
+                    ESP_LOGI(PROJ_NAME, "Writing new PIN");
+                    ESP_ERROR_CHECK(write_pin(pin, "new_pin"));
+                    pin_state = PIN_CHANGE_CONFIRM;
+                    break;
+
+                case PIN_CHANGE_CONFIRM:
+                    ESP_LOGI(PROJ_NAME, "Checking new PIN");
+                    ESP_ERROR_CHECK(check_pin(pin, "new_pin", &is_correct));
+                    if(is_correct) {
+                        ESP_LOGI(PROJ_NAME, "PIN change confirmed");
+                        ESP_ERROR_CHECK(write_pin(pin, "access_pin"));
+                        pin_state = PIN_AUTH;
+                    } else {
+                        ESP_LOGI(PROJ_NAME, "PINs do not match, try again");
+                        pin_state = PIN_CHANGE_ENTER_NEW;
+                    }
+                    break;
+            }
             break;
+
         case KEYPAD_PIN_CHANGE_KEY:
             ESP_LOGI(PROJ_NAME, "Requested pin change");
-            pin_state = PIN_CHANGE_REQUEST;
-            keypad_clear_pin(pin, &pin_index);
+            pin_state = PIN_CHANGE_AUTH;
             break;
+
         default:
             pin[pin_index++] = key_pressed;
             if(pin_index >= sizeof(pin)) {
@@ -126,6 +174,7 @@ void keypad_keypress_handler(char key_pressed)
             }
             return;
     }
+    keypad_clear_pin(pin, &pin_index);
 }
 
 noreturn void keypad_handler_task()
