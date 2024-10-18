@@ -13,6 +13,7 @@
 
 #include "gpio.h"
 #include "main.h"
+#include "keypad.h"
 
 noreturn void led_heartbeat_task() {
     // Blink every second indefinitely
@@ -37,5 +38,7 @@ void main_task()
 void app_main(void)
 {
     gpio_configure();
+    vTaskDelaySec(2); // Wait for serial monitor to connect
+    nvs_configure();
     main_task();
 }

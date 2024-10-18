@@ -13,6 +13,7 @@
 
 #include "gpio.h"
 #include "main.h"
+#include "keypad.h"
 
 char * gpio_pad_map[][3] = {
     {"1", "2", "3"},
@@ -147,8 +148,7 @@ noreturn void keypad_handler_task()
         if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
             // printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
             if((key = gpio_keypad_key_lookup(io_num)) != E_KEYPAD_NO_KEY_FOUND) { // A key was pressed
-                ESP_LOGI(PROJ_NAME, "key %c pressed", key);
-                gpio_blink_nonblocking(STATUS_LED, 20);
+                keypad_keypress_handler(key);
             }
         }
         xQueueReset(gpio_evt_queue);
