@@ -20,8 +20,8 @@ nvs_handle_t keypad_nvs_handle;
 
 void nvs_set_defaults()
 {
-    char access_pin[] = "1234";
-    char admin_pin[] = "00000000";
+    char access_pin[] = KEYPAD_DEFAULT_ACCESS_PIN;
+    char admin_pin[] = KEYPAD_DEFAULT_ADMIN_PIN;
     ESP_ERROR_CHECK(nvs_open(KEYPAD_STORAGE_NS, NVS_READWRITE, &keypad_nvs_handle));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "access_pin", access_pin));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "admin_pin", admin_pin));
