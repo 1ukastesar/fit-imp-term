@@ -35,13 +35,39 @@
 
 // EXPORTED SYMBOLS
 
+/*
+ * @brief Blink a GPIO pin (turn it on for a given duration)
+ * @param gpio_num GPIO pin number
+ * @param duration Duration in milliseconds
+*/
 void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration);
-void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration);
-void gpio_blink_success_nonblocking(const uint32_t gpio_num);
-void gpio_configure();
-uint8_t gpio_keypad_key_lookup();
-noreturn void keypad_handler_task();
 
+/*
+ * @brief Blink a GPIO pin (turn it on for a given duration) in a non-blocking manner
+ * @param gpio_num GPIO pin number
+ * @param duration Duration in milliseconds
+*/
+void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration);
+
+/*
+ * @brief Blink a GPIO with a success pattern
+ * @param gpio_num GPIO pin number
+*/
+void gpio_blink_success_nonblocking(const uint32_t gpio_num);
+
+/*
+ * @brief Configure GPIO pins
+*/
+void gpio_configure();
+
+/*
+ * @brief Lookup a key from a GPIO number
+ * @param io_num GPIO number
+ * @return Key value or E_KEYPAD_NO_KEY_FOUND if no key was found
+*/
+uint8_t gpio_keypad_key_lookup();
+
+// Queue for GPIO events
 extern QueueHandle_t gpio_evt_queue;
 
 

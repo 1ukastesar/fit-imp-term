@@ -8,12 +8,13 @@
 */
 
 #include <esp_log.h>
+#include <esp_check.h>
 
 #include <soc/gpio_reg.h>
 
 #include "gpio.h"
-#include "main.h"
 #include "keypad.h"
+#include "main.h"
 
 char * gpio_pad_map[][3] = 
 {
@@ -30,13 +31,13 @@ static int gpio_keypad_pin_rows[] = {GPIO_NUM_23, GPIO_NUM_27, GPIO_NUM_16, GPIO
 #define map_keypad_col_to_gpio_pin(col) gpio_keypad_pin_cols[col]
 #define map_keypad_row_to_gpio_pin(row) gpio_keypad_pin_rows[row]
 
-static int gpio_keypad_col_mask = 0;
-static int gpio_keypad_row_mask = 0;
+static int gpio_keypad_col_mask;
+static int gpio_keypad_row_mask;
 
 static volatile uint32_t *gpio_w1ts_reg = (volatile uint32_t *) GPIO_OUT_W1TS_REG;
 static volatile uint32_t *gpio_w1tc_reg = (volatile uint32_t *) GPIO_OUT_W1TC_REG;
 
-QueueHandle_t gpio_evt_queue = NULL;
+QueueHandle_t gpio_evt_queue;
 
 void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration)
 {

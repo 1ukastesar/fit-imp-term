@@ -12,8 +12,8 @@
 #include <nvs_flash.h>
 
 #include "gpio.h"
-#include "main.h"
 #include "keypad.h"
+#include "main.h"
 
 noreturn void led_heartbeat_task() {
     // Blink every second indefinitely
