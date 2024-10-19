@@ -31,7 +31,6 @@ noreturn void led_heartbeat_task() {
 void app_main(void)
 {
     // Initialization
-    vTaskDelaySec(1); // Wait for serial monitor to connect
     gpio_configure();
     nvs_configure();
 
