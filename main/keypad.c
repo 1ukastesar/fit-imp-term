@@ -165,6 +165,7 @@ void keypad_keypress_handler(char key_pressed)
                         error_state = SUCCESS;
                     } else {
                         ESP_LOGI(PROJ_NAME, "Admin access denied");
+                        pin_state = PIN_AUTH; // Return to normal state
                         error_state = FAIL;
                     }
                     break;
@@ -209,6 +210,7 @@ void keypad_keypress_handler(char key_pressed)
             pin[pin_index++] = key_pressed;
             if(pin_index >= sizeof(pin)) {
                 ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
+                error_state = FAIL;
                 break;
             }
             return;
