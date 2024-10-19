@@ -34,7 +34,7 @@ void nvs_set_defaults()
 {
     char access_pin[] = KEYPAD_DEFAULT_ACCESS_PIN;
     char admin_pin[] = KEYPAD_DEFAULT_ADMIN_PIN;
-    ESP_ERROR_CHECK(nvs_open(KEYPAD_STORAGE_NS, NVS_READWRITE, &keypad_nvs_handle));
+    ESP_ERROR_CHECK(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "access_pin", access_pin));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "admin_pin", admin_pin));
     ESP_ERROR_CHECK(nvs_commit(keypad_nvs_handle));
@@ -57,7 +57,7 @@ void nvs_configure()
     ESP_ERROR_CHECK(err);
 
     // Set defaults if storage is empty
-    err = nvs_open(KEYPAD_STORAGE_NS, NVS_READONLY, &keypad_nvs_handle);
+    err = nvs_open(KEYPAD_STORAGE_NAME, NVS_READONLY, &keypad_nvs_handle);
     if(err == ESP_ERR_NVS_NOT_FOUND) {
         vTaskDelaySec(2); // Wait for serial monitor to connect
         ESP_LOGE(PROJ_NAME, "Storage not initialized, setting defaults");
@@ -75,7 +75,7 @@ static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, boo
     *is_correct = false;
     char pin_set[KEYPAD_PIN_MAX_LEN] = {0};
     size_t len = sizeof(pin_set);
-    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NS, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_get_str(keypad_nvs_handle, pin_name, pin_set, &len), "Error reading PIN from NVS", PROJ_NAME);
 
     if(strcmp(pin_to_check, pin_set) == 0) {
@@ -92,7 +92,7 @@ static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, boo
 
 static esp_err_t write_pin(const char * pin_to_write, const char * pin_name)
 {
-    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NS, NVS_READWRITE, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_set_str(keypad_nvs_handle, pin_name, pin_to_write), "Error writing PIN to NVS", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_commit(keypad_nvs_handle), "Error committing changes", PROJ_NAME);
     nvs_close(keypad_nvs_handle);
@@ -261,7 +261,7 @@ void door_close() {
 
 noreturn void door_open_for_defined_time_task() {
     door_open();
-    vTaskDelaySec(DOOR_OPEN_FOR_SEC); // Leave open for DOOR_OPEN_FOR_SEC seconds
+    vTaskDelaySec(DOOR_OPEN_TIME_SEC); // Leave open for DOOR_OPEN_TIME_SEC seconds
     ESP_LOGI(PROJ_NAME, "Closing door");
     door_state = DOOR_CLOSE;
     door_close();
