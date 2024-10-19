@@ -23,6 +23,8 @@
 #define KEYPAD_PIN_SUBMIT_KEY '#'
 #define KEYPAD_PIN_CHANGE_KEY '*'
 
+#define DOOR_OPEN_FOR_SEC 10 // Time in seconds the door stay open
+
 
 // EXPORTED SYMBOLS
 

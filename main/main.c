@@ -47,4 +47,9 @@ void app_main(void)
         ESP_LOGE(PROJ_NAME, "Failed to create keypad handler task");
         abort();
     }
+
+    if(xTaskCreate(&door_handler_task, "door_handler", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
+        ESP_LOGE(PROJ_NAME, "Failed to create door handler task");
+        abort();
+    }
 }

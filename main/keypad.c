@@ -18,7 +18,14 @@
 
 nvs_handle_t keypad_nvs_handle;
 
-bool door_open = false;
+QueueHandle_t door_evt_queue;
+
+enum DoorState {
+    DOOR_OPEN,
+    DOOR_CLOSE
+};
+
+enum DoorState door_state = DOOR_CLOSE;
 
 void nvs_set_defaults()
 {
@@ -101,16 +108,6 @@ void keypad_clear_pin(char * pin, uint8_t * pin_index)
     *pin_index = 0;
 }
 
-void open_door()
-{
-    ESP_LOGI(PROJ_NAME, "Opening door");
-    door_open = true;
-    gpio_set_level(DOOR_CLOSED_LED, GPIO_LOW);
-    gpio_blink_blocking(DOOR_OPEN_LED, seconds(10));
-    gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
-    door_open = false;
-}
-
 void keypad_keypress_handler(char key_pressed)
 {
     ESP_LOGI(PROJ_NAME, "Key %c pressed", key_pressed);
@@ -133,6 +130,14 @@ void keypad_keypress_handler(char key_pressed)
 
     bool is_correct = false;
 
+    if(door_state == DOOR_OPEN) {
+        // Immediately close the door
+        ESP_LOGI(PROJ_NAME, "Requested immediate door close");
+        enum DoorState evt = DOOR_CLOSE;
+        xQueueSend(door_evt_queue, &evt, portMAX_DELAY);
+        return;
+    }
+
     switch(key_pressed) {
         case KEYPAD_PIN_SUBMIT_KEY:
             ESP_LOGI(PROJ_NAME, "Requested submit");
@@ -142,7 +147,8 @@ void keypad_keypress_handler(char key_pressed)
                     ESP_ERROR_CHECK(check_pin(pin, "access_pin", &is_correct));
                     if(is_correct) {
                         ESP_LOGI(PROJ_NAME, "Access granted");
-                        open_door();
+                        enum DoorState evt = DOOR_OPEN;
+                        xQueueSend(door_evt_queue, (void*) &evt, portMAX_DELAY);
                     } else {
                         ESP_LOGI(PROJ_NAME, "Access denied");
                         error_state = FAIL;
@@ -229,5 +235,69 @@ noreturn void keypad_handler_task()
             }
         }
         xQueueReset(gpio_evt_queue);
+    }
+}
+
+void door_open() {
+    ESP_LOGI(PROJ_NAME, "Opening door");
+    gpio_set_level(DOOR_CLOSED_LED, GPIO_LOW);
+    gpio_set_level(DOOR_OPEN_LED, GPIO_HIGH);
+}
+
+void door_close() {
+    gpio_set_level(DOOR_OPEN_LED, GPIO_LOW);
+    gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
+}
+
+noreturn void door_open_for_defined_time_task() {
+    door_open();
+    vTaskDelaySec(DOOR_OPEN_FOR_SEC); // Leave open for DOOR_OPEN_FOR_SEC seconds
+    ESP_LOGI(PROJ_NAME, "Closing door");
+    door_state = DOOR_CLOSE;
+    door_close();
+    vTaskDelete(NULL); // Delete self
+    while(1); // Wait for deletion
+}
+
+noreturn void door_handler_task()
+{
+    door_evt_queue = xQueueCreate(1, sizeof(enum DoorState));
+    if(door_evt_queue == NULL) {
+        ESP_LOGE(PROJ_NAME, "Failed to create door event queue");
+        abort();
+    }
+
+    enum DoorState evt;
+    TaskHandle_t door_open_task_handle = NULL;
+
+    while(1) {
+        if(xQueueReceive(door_evt_queue, &evt, portMAX_DELAY)) {
+            switch(evt) {
+                case DOOR_OPEN:
+                    if(door_state == DOOR_CLOSE) {
+                        xTaskCreate(&door_open_for_defined_time_task, "door_open", 2048, NULL, tskIDLE_PRIORITY, &door_open_task_handle);
+                        door_state = DOOR_OPEN;
+                    } else {
+                        ESP_LOGE(PROJ_NAME, "Door already open");
+                    }
+                    break;
+                case DOOR_CLOSE:
+                    if(door_state == DOOR_OPEN) {
+                        ESP_LOGI(PROJ_NAME, "Closing door prematurely");
+                        // Prevent race condition when both tasks reach deletion state
+                        static portMUX_TYPE task_delete_spinlock = portMUX_INITIALIZER_UNLOCKED;
+                        taskENTER_CRITICAL(&task_delete_spinlock);
+                        if(eTaskGetState(door_open_task_handle) != eDeleted) {
+                            vTaskDelete(door_open_task_handle);
+                        }
+                        taskEXIT_CRITICAL(&task_delete_spinlock);
+                        door_close();
+                    } else {
+                        ESP_LOGE(PROJ_NAME, "Door already closed");
+                    }
+                    door_state = DOOR_CLOSE;
+                    break;
+            }
+        }
     }
 }
