@@ -20,10 +20,11 @@
 // CONFIGURABLE OPTIONS
 
 // GPIO port number definitions
-#define STATUS_LED GPIO_NUM_2 // Onboard LED GPIO pin
-#define SUCCESS_LED GPIO_NUM_4 // Door open LED GPIO pin
+#define STATUS_LED      GPIO_NUM_2  // Onboard LED GPIO pin
+#define DOOR_OPEN_LED   GPIO_NUM_19 // Door open LED GPIO pin
+#define DOOR_CLOSED_LED GPIO_NUM_18 // Door closed LED GPIO pin
 
-#define ESP_INTR_FLAG_DEFAULT 0
+#define ESP_INTR_FLAG_DEFAULT 0 // Default interrupt flags
 
 
 // CONVENIENCE DEFINITIONS
@@ -50,11 +51,18 @@ void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration);
 */
 void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration);
 
+
 /*
- * @brief Blink a GPIO with a success pattern
+ * @brief Blink a GPIO with two short blinks (blocking)
  * @param gpio_num GPIO pin number
 */
-void gpio_blink_success_nonblocking(const uint32_t gpio_num);
+void gpio_blink_twice_blocking(const uint32_t gpio_num);
+
+/*
+ * @brief Blink a GPIO with two short blinks (non-blocking)
+ * @param gpio_num GPIO pin number
+*/
+void gpio_blink_twice_nonblocking(const uint32_t gpio_num);
 
 /*
  * @brief Configure GPIO pins

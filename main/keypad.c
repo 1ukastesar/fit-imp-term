@@ -105,7 +105,9 @@ void open_door()
 {
     ESP_LOGI(PROJ_NAME, "Opening door");
     door_open = true;
-    gpio_blink_blocking(SUCCESS_LED, seconds(10));
+    gpio_set_level(DOOR_CLOSED_LED, GPIO_LOW);
+    gpio_blink_blocking(DOOR_OPEN_LED, seconds(10));
+    gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
     door_open = false;
 }
 
@@ -202,10 +204,14 @@ void keypad_keypress_handler(char key_pressed)
     }
 
     if(error_state == SUCCESS) {
-        gpio_blink_success_nonblocking(SUCCESS_LED);
+        gpio_blink_twice_nonblocking(DOOR_OPEN_LED);
     } else if(error_state == FAIL) {
-        vTaskDelaySec(1.5); // Security delay
-        gpio_blink_blocking(STATUS_LED, seconds(2));
+        gpio_set_level(DOOR_CLOSED_LED, GPIO_LOW);
+        vTaskDelaySec(0.1);
+        gpio_blink_twice_blocking(DOOR_CLOSED_LED);
+        vTaskDelaySec(0.1);
+        vTaskDelaySec(2); // Security delay
+        gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
     }
     keypad_clear_pin(pin, &pin_index);
 }
