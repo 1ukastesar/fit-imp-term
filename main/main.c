@@ -39,10 +39,10 @@ void app_main(void)
 
     // Create long-running tasks
     // Uncomment to enable heartbeat
-    // if(xTaskCreate(&led_heartbeat_task, "led_heartbeat", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
-    //     ESP_LOGE(PROJ_NAME, "Failed to create heartbeat task");
-    //     abort();
-    // }
+    if(xTaskCreate(&led_heartbeat_task, "led_heartbeat", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
+        ESP_LOGE(PROJ_NAME, "Failed to create heartbeat task");
+        abort();
+    }
     if(xTaskCreate(&keypad_handler_task, "keypad_handler", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
         ESP_LOGE(PROJ_NAME, "Failed to create keypad handler task");
         abort();
