@@ -51,7 +51,6 @@ void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration);
 */
 void gpio_blink_nonblocking(const uint8_t gpio_num, const uint16_t duration);
 
-
 /*
  * @brief Blink a GPIO with two short blinks (blocking)
  * @param gpio_num GPIO pin number
