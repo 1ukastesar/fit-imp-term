@@ -190,7 +190,7 @@ void keypad_keypress_handler(char key_pressed)
             ESP_LOGI(PROJ_NAME, "Requested pin change");
             ESP_LOGI(PROJ_NAME, "Enter admin PIN");
             pin_state = PIN_CHANGE_AUTH;
-            gpio_blink_nonblocking(STATUS_LED, 20);
+            gpio_blink_nonblocking(DOOR_OPEN_LED, 20);
             break;
 
         default:
@@ -199,7 +199,7 @@ void keypad_keypress_handler(char key_pressed)
                 ESP_LOGE(PROJ_NAME, "PIN too long, resetting");
                 break;
             }
-            gpio_blink_nonblocking(STATUS_LED, 20);
+            gpio_blink_nonblocking(DOOR_OPEN_LED, 20);
             return;
     }
 
