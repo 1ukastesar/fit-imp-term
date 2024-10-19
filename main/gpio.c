@@ -120,6 +120,10 @@ void gpio_configure()
     ESP_ERROR_CHECK(gpio_config(&row_conf));
 
     gpio_evt_queue = xQueueCreate(3, sizeof(uint32_t));
+    if(gpio_evt_queue == NULL) {
+        ESP_LOGE(PROJ_NAME, "Failed to create GPIO event queue");
+        abort();
+    }
 
     ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT));
     for(uint8_t row = 0; row < array_len(gpio_keypad_pin_rows); row++) {
