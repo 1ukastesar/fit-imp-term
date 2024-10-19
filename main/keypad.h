@@ -10,9 +10,6 @@
 #ifndef IMP_TERM_KEYPAD_H
 #define IMP_TERM_KEYPAD_H
 
-#include <nvs.h>
-#include <nvs_flash.h>
-
 // CONFIGURABLE OPTIONS
 
 #define KEYPAD_DEFAULT_ACCESS_PIN "1234"
