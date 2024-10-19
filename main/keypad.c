@@ -45,7 +45,6 @@ void nvs_configure()
     // Initialize NVS
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        vTaskDelaySec(2); // Wait for serial monitor to connect
         // NVS partition was truncated and needs to be erased
         // Retry nvs_flash_init
         ESP_LOGE(PROJ_NAME, "Storage truncated, erasing...");
@@ -57,6 +56,7 @@ void nvs_configure()
     // Set defaults if storage is empty
     err = nvs_open(KEYPAD_STORAGE_NS, NVS_READONLY, &keypad_nvs_handle);
     if(err == ESP_ERR_NVS_NOT_FOUND) {
+        vTaskDelaySec(2); // Wait for serial monitor to connect
         ESP_LOGE(PROJ_NAME, "Storage not initialized, setting defaults");
         nvs_close(keypad_nvs_handle);
         nvs_set_defaults();
