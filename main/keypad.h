@@ -26,8 +26,20 @@
 
 // EXPORTED SYMBOLS
 
+/*
+ * @brief Initialize NVS storage and if empty, set default values
+*/
 void nvs_configure();
+
+/*
+ * @brief Handle a keypress on the keypad
+*/
 noreturn void keypad_handler_task();
+
+/*
+ * @brief Handle a door open/close event
+*/
+noreturn void door_handler_task();
 
 
 #endif // IMP_TERM_KEYPAD_H

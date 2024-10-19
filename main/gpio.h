@@ -74,7 +74,7 @@ void gpio_configure();
  * @param io_num GPIO number
  * @return Key value or E_KEYPAD_NO_KEY_FOUND if no key was found
 */
-uint8_t gpio_keypad_key_lookup();
+uint8_t gpio_keypad_key_lookup(uint32_t io_num);
 
 // Queue for GPIO events
 extern QueueHandle_t gpio_evt_queue;

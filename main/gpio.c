@@ -46,6 +46,11 @@ void gpio_blink_blocking(const uint8_t gpio_num, const uint16_t duration)
     ESP_ERROR_CHECK(gpio_set_level(gpio_num, GPIO_LOW));
 }
 
+/*
+ * @brief Task to blink a GPIO pin in a non-blocking manner
+ * @param param GPIO pin number and duration
+ * @note uint32_t param = ((uint16_t) duration << 8 | (uint8_t) gpio_num)
+*/
 static noreturn void gpio_blink_task(void * param)
 {
     uint32_t num_duration = (uint32_t) param;
@@ -67,6 +72,10 @@ void gpio_blink_twice_blocking(const uint32_t gpio_num)
     gpio_blink_blocking(gpio_num, seconds(0.05));
 }
 
+/*
+ * @brief Task to blink a GPIO pin twice in a non-blocking manner
+ * @param param GPIO pin number
+*/
 static noreturn void gpio_blink_twice_task(void * param)
 {
     uint32_t gpio_num = (uint32_t) param;
@@ -80,6 +89,9 @@ void gpio_blink_twice_nonblocking(const uint32_t gpio_num)
     xTaskCreate(&gpio_blink_twice_task, "gpio_blink_success", 1024, (void*) gpio_num, 5, NULL);
 }
 
+/*
+ * @brief GPIO interrupt handler for keypad
+*/
 static void IRAM_ATTR gpio_keypad_interrupt(void* arg)
 {
     uint32_t gpio_num = (uint32_t) arg;
