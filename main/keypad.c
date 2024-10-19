@@ -170,6 +170,11 @@ void keypad_keypress_handler(char key_pressed)
                     break;
 
                 case PIN_CHANGE_ENTER_NEW:
+                    if(strlen(pin) < KEYPAD_PIN_MIN_LEN) {
+                        ESP_LOGI(PROJ_NAME, "PIN too short (minimum %u), try again", KEYPAD_PIN_MIN_LEN);
+                        error_state = FAIL;
+                        break;
+                    }
                     ESP_ERROR_CHECK(write_pin(pin, "new_pin"));
                     ESP_LOGI(PROJ_NAME, "Confirm new PIN");
                     pin_state = PIN_CHANGE_CONFIRM;
