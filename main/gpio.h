@@ -17,22 +17,15 @@
 #include <freertos/FreeRTOS.h>
 
 
-// CONFIGURABLE OPTIONS
-
-// GPIO port number definitions
-#define STATUS_LED      GPIO_NUM_2  // Onboard LED GPIO pin
-#define DOOR_OPEN_LED   GPIO_NUM_19 // Door open LED GPIO pin
-#define DOOR_CLOSED_LED GPIO_NUM_18 // Door closed LED GPIO pin
-
-#define ESP_INTR_FLAG_DEFAULT 0 // Default interrupt flags
-
-
 // CONVENIENCE DEFINITIONS
 
 #define GPIO_LOW 0
 #define GPIO_HIGH 1
 
 #define E_KEYPAD_NO_KEY_FOUND ((uint8_t) -1)
+
+#define map_keypad_col_to_gpio_pin(col) gpio_keypad_pin_cols[col]
+#define map_keypad_row_to_gpio_pin(row) gpio_keypad_pin_rows[row]
 
 
 // EXPORTED SYMBOLS

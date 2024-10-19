@@ -7,6 +7,7 @@
  * @year 2024
 */
 
+#include "config.h"
 #include "gpio.h"
 #include "keypad.h"
 #include "main.h"

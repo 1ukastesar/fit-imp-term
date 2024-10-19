@@ -12,11 +12,12 @@
 
 #include <soc/gpio_reg.h>
 
+#include "config.h"
 #include "gpio.h"
 #include "keypad.h"
 #include "main.h"
 
-char * gpio_pad_map[][3] = 
+static char * gpio_pad_map[][3] =
 {
     {"1", "2", "3"},
     {"4", "5", "6"},
@@ -24,12 +25,8 @@ char * gpio_pad_map[][3] =
     {"*", "0", "#"}
 };
 
-// Rows and columns are not in order
-static int gpio_keypad_pin_cols[] = {GPIO_NUM_26, GPIO_NUM_5, GPIO_NUM_17};
-static int gpio_keypad_pin_rows[] = {GPIO_NUM_23, GPIO_NUM_27, GPIO_NUM_16, GPIO_NUM_25};
-
-#define map_keypad_col_to_gpio_pin(col) gpio_keypad_pin_cols[col]
-#define map_keypad_row_to_gpio_pin(row) gpio_keypad_pin_rows[row]
+static int gpio_keypad_pin_cols[] = GPIO_KEYPAD_PIN_COLS;
+static int gpio_keypad_pin_rows[] = GPIO_KEYPAD_PIN_ROWS;
 
 static int gpio_keypad_col_mask;
 static int gpio_keypad_row_mask;

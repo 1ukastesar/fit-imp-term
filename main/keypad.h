@@ -10,19 +10,6 @@
 #ifndef IMP_TERM_KEYPAD_H
 #define IMP_TERM_KEYPAD_H
 
-// CONFIGURABLE OPTIONS
-
-#define KEYPAD_DEFAULT_ACCESS_PIN "1234"
-#define KEYPAD_DEFAULT_ADMIN_PIN "00000000"
-
-#define KEYPAD_STORAGE_NS "keypad"
-#define KEYPAD_PIN_MIN_LEN 4
-#define KEYPAD_PIN_MAX_LEN 10
-#define KEYPAD_PIN_SUBMIT_KEY '#'
-#define KEYPAD_PIN_CHANGE_KEY '*'
-
-#define DOOR_OPEN_FOR_SEC 10 // Time in seconds the door stay open
-
 
 // EXPORTED SYMBOLS
 

@@ -11,6 +11,7 @@
 #include <nvs.h>
 #include <nvs_flash.h>
 
+#include "config.h"
 #include "gpio.h"
 #include "keypad.h"
 #include "main.h"
