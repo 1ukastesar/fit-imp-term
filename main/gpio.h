@@ -21,6 +21,7 @@
 
 // GPIO port number definitions
 #define STATUS_LED GPIO_NUM_2 // Onboard LED GPIO pin
+#define SUCCESS_LED GPIO_NUM_4 // Door open LED GPIO pin
 
 #define ESP_INTR_FLAG_DEFAULT 0
 

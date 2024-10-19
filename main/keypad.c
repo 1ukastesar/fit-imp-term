@@ -18,6 +18,8 @@
 
 nvs_handle_t keypad_nvs_handle;
 
+bool door_open = false;
+
 void nvs_set_defaults()
 {
     char access_pin[] = KEYPAD_DEFAULT_ACCESS_PIN;
@@ -99,6 +101,14 @@ void keypad_clear_pin(char * pin, uint8_t * pin_index)
     *pin_index = 0;
 }
 
+void open_door()
+{
+    ESP_LOGI(PROJ_NAME, "Opening door");
+    door_open = true;
+    gpio_blink_blocking(SUCCESS_LED, seconds(10));
+    door_open = false;
+}
+
 void keypad_keypress_handler(char key_pressed)
 {
     ESP_LOGI(PROJ_NAME, "Key %c pressed", key_pressed);
@@ -130,7 +140,7 @@ void keypad_keypress_handler(char key_pressed)
                     ESP_ERROR_CHECK(check_pin(pin, "access_pin", &is_correct));
                     if(is_correct) {
                         ESP_LOGI(PROJ_NAME, "Access granted");
-                        error_state = SUCCESS;
+                        open_door();
                     } else {
                         ESP_LOGI(PROJ_NAME, "Access denied");
                         error_state = FAIL;
@@ -192,7 +202,7 @@ void keypad_keypress_handler(char key_pressed)
     }
 
     if(error_state == SUCCESS) {
-        gpio_blink_success_nonblocking(STATUS_LED);
+        gpio_blink_success_nonblocking(SUCCESS_LED);
     } else if(error_state == FAIL) {
         vTaskDelaySec(1.5); // Security delay
         gpio_blink_blocking(STATUS_LED, seconds(2));

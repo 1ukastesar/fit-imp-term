@@ -89,6 +89,10 @@ void gpio_configure()
     ESP_ERROR_CHECK(gpio_reset_pin(STATUS_LED));
     ESP_ERROR_CHECK(gpio_set_direction(STATUS_LED, GPIO_MODE_OUTPUT));
 
+    // Door open LED
+    ESP_ERROR_CHECK(gpio_reset_pin(SUCCESS_LED));
+    ESP_ERROR_CHECK(gpio_set_direction(SUCCESS_LED, GPIO_MODE_OUTPUT));
+
     // Keypad
     gpio_config_t col_conf = {};
     col_conf.intr_type = GPIO_INTR_DISABLE;
