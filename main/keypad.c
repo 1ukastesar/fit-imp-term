@@ -206,13 +206,13 @@ void keypad_keypress_handler(char key_pressed)
                         ESP_LOGI(PROJ_NAME, "PIN change confirmed");
                         ESP_ERROR_CHECK(write_pin(pin, "access_pin"));
                         pin_state = PIN_AUTH;
+                        gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
                         error_state = SUCCESS;
                     } else {
                         ESP_LOGI(PROJ_NAME, "PINs do not match, try again");
                         pin_state = PIN_CHANGE_ENTER_NEW;
                         error_state = FAIL;
                     }
-                    gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
                     break;
             }
             break;
