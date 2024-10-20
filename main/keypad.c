@@ -179,6 +179,7 @@ void keypad_keypress_handler(char key_pressed)
                         ESP_LOGI(PROJ_NAME, "Admin access granted");
                         ESP_LOGI(PROJ_NAME, "Enter new PIN");
                         pin_state = PIN_CHANGE_ENTER_NEW;
+                        gpio_set_level(DOOR_CLOSED_LED, GPIO_LOW);
                         error_state = SUCCESS;
                     } else {
                         ESP_LOGI(PROJ_NAME, "Admin access denied");
@@ -211,6 +212,7 @@ void keypad_keypress_handler(char key_pressed)
                         pin_state = PIN_CHANGE_ENTER_NEW;
                         error_state = FAIL;
                     }
+                    gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
                     break;
             }
             break;
