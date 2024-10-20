@@ -19,6 +19,7 @@
 #define KEYPAD_DEFAULT_ACCESS_PIN "1234"
 #define KEYPAD_DEFAULT_ADMIN_PIN "00000000"
 
+#define KEYPAD_SECURITY_DELAY_SEC 2 // Time in seconds the keypad is locked for after a failed attempt
 #define KEYPAD_PIN_MIN_LEN 4
 #define KEYPAD_PIN_MAX_LEN 10
 #define KEYPAD_PIN_SUBMIT_KEY '#'

@@ -111,6 +111,20 @@ void keypad_clear_pin(char * pin, uint8_t * pin_index)
     *pin_index = 0;
 }
 
+/*
+ * @brief Wait for a security delay after a failed attempt
+ * @note This function will block the keypad for KEYPAD_SECURITY_DELAY_SEC seconds
+ */
+void wait_security_delay()
+{
+    gpio_set_level(DOOR_CLOSED_LED, GPIO_LOW);
+    vTaskDelaySec(0.1);
+    gpio_blink_twice_blocking(DOOR_CLOSED_LED);
+    vTaskDelaySec(0.1);
+    vTaskDelaySec(KEYPAD_SECURITY_DELAY_SEC);
+    gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
+}
+
 void keypad_keypress_handler(char key_pressed)
 {
     ESP_LOGI(PROJ_NAME, "Key %c pressed", key_pressed);
@@ -222,12 +236,7 @@ void keypad_keypress_handler(char key_pressed)
     if(error_state == SUCCESS) {
         gpio_blink_twice_nonblocking(DOOR_OPEN_LED);
     } else if(error_state == FAIL) {
-        gpio_set_level(DOOR_CLOSED_LED, GPIO_LOW);
-        vTaskDelaySec(0.1);
-        gpio_blink_twice_blocking(DOOR_CLOSED_LED);
-        vTaskDelaySec(0.1);
-        vTaskDelaySec(2); // Security delay
-        gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
+        wait_security_delay();
     }
     keypad_clear_pin(pin, &pin_index);
 }
