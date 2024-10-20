@@ -1,7 +1,7 @@
 # IMP Access terminal - semestral project
 
 ## Description
-This is an implementation of a simple access keypad system for ESP-32 in ESP-IDF. It has configurable PIN code and a simple web interface for configuration.
+This is an implementation of a simple access keypad system for ESP-32 in C with the help of ESP-IDF. It has configurable PIN code and a simple web interface for configuration.
 
 ## Features
 - Configurable PIN code
@@ -20,24 +20,32 @@ This is an implementation of a simple access keypad system for ESP-32 in ESP-IDF
 ```bash
 git clone git@github.com:1ukastesar/fit-imp-term.git
 ```
+
 2. Open the cloned repository:
 ```bash
 cd fit-imp-term
 ```
+
 3. Setup the environment
 ```bash
 . $IDF_PATH/export.sh
 ```
+
 > [!NOTE]
 > Replace `$IDF_PATH` with the path to your ESP-IDF installation. For example, if you have ESP-IDF installed in `~/esp/esp-idf`, the command would be `. ~/esp/esp-idf/export.sh`
+
 4. Build the project
 ```bash
 idf.py build
 ```
-5. Flash the project
+
+5. Connect the device to your computer using a USB cable
+
+6. Flash the project
 ```bash
 idf.py -p /dev/ttyUSB0 flash
 ```
+
 > [!NOTE]
 > Replace `/dev/ttyUSB0` with the path to your ESP32 device.
 >
