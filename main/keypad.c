@@ -259,18 +259,21 @@ noreturn void keypad_handler_task()
     }
 }
 
-void door_open() {
+void door_open()
+{
     ESP_LOGI(PROJ_NAME, "Opening door");
     gpio_set_level(DOOR_CLOSED_LED, GPIO_LOW);
     gpio_set_level(DOOR_OPEN_LED, GPIO_HIGH);
 }
 
-void door_close() {
+void door_close()
+{
     gpio_set_level(DOOR_OPEN_LED, GPIO_LOW);
     gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
 }
 
-noreturn void door_open_for_defined_time_task() {
+noreturn void door_open_for_defined_time_task()
+{
     door_open();
     vTaskDelaySec(DOOR_OPEN_TIME_SEC); // Leave open for DOOR_OPEN_TIME_SEC seconds
     ESP_LOGI(PROJ_NAME, "Closing door");
