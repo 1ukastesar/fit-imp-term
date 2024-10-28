@@ -65,7 +65,7 @@ const ImpTerm = () => {
               <a href="chrome://flags/#enable-experimental-web-platform-features">chrome://flags/#enable-experimental-web-platform-features</a>
               <br />
               <br />
-              You need to enter that URL manually, as Chrome does not allow direct links to internal pages. You need to restart the browser for the setting to take effect.
+              You need to enter that URL manually, as Chrome does not allow direct links to internal pages. Restart the browser for the setting to take effect.
             </Alert>
           </>
         )}
