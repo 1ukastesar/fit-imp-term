@@ -55,15 +55,19 @@ const ImpTerm = () => {
           </Button>
         </>
         ) : (
-          <Alert severity="error">
-            <b>Web Bluetooth API is not supported in this browser.</b>
-            <br />
-            Use the latest version of Chrome or Edge and enable the experimental Web Platform features flag:
-            <br />
-            <a href="chrome://flags/#enable-experimental-web-platform-features">chrome://flags/#enable-experimental-web-platform-features</a>
-            <br />
-            (You need to enter that URL manually, as Chrome does not allow direct links to internal pages.)
-          </Alert>
+          <>
+            <Alert severity="error">
+              <b>Web Bluetooth API is not supported in this browser.</b>
+            </Alert>
+            <Alert severity="info">
+              Use the latest version of Chrome or Edge and enable the experimental Web Platform features flag:
+              <br />
+              <a href="chrome://flags/#enable-experimental-web-platform-features">chrome://flags/#enable-experimental-web-platform-features</a>
+              <br />
+              <br />
+              You need to enter that URL manually, as Chrome does not allow direct links to internal pages. You need to restart the browser for the setting to take effect.
+            </Alert>
+          </>
         )}
       </Box>
     </Container>
