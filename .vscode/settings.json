@@ -1,0 +1,21 @@
+{
+    "idf.adapterTargetName": "esp32",
+    "idf.port": "/dev/ttyUSB0",
+    "idf.openOcdConfigs": [
+        "interface/jlink.cfg",
+        "target/esp32.cfg"
+    ],
+    "idf.flashType": "UART",
+    "files.associations": {
+        "*.h": "c",
+        "*.s": "arm",
+        "chrono": "c",
+        "condition_variable": "c",
+        "mutex": "c",
+        "optional": "c",
+        "format": "c",
+        "utility": "c",
+        "*.tcc": "c",
+        "cstdint": "c"
+    }
+}
