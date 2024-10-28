@@ -95,3 +95,18 @@ When the door is open, the green LED will be turned on. The door will close auto
 ### Debug logs
 The device logs most of the operations and important events.
 To see debug logs, you can use the `idf.py monitor` command when the device is connected to your computer.
+
+## Web configuration
+### The project also comes with a simple web configuration. You can access it at https://1ukastesar.github.io/fit-imp-term/.
+
+It is written in React with the help of Material-UI and is hosted on GitHub Pages.
+
+> [!NOTE]
+> If you prefer, you can download nvm, install npm and run the project locally by following these steps:
+> ```bash
+> cd web-control
+> curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+> nvm install 22
+> npm install
+> npm start
+> ```
