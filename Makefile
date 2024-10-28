@@ -22,5 +22,8 @@ clean:
 	idf.py fullclean
 	rm -fr sdkconfig sdkconfig.old $(DOC_BIN) $(ARCHIVE_NAME)
 
+deploy:
+	cd web-control && npm run deploy
+
 pack: doc
 	zip -r $(ARCHIVE_NAME) main Makefile $(DOC_BASE) $(DOC_BIN) sdkconfig.defaults
