@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
+import { Container, TextField, Button, Typography, Box, Alert, InputAdornment, OutlinedInput, InputLabel, FormControl} from '@mui/material';
 
 const ImpTerm = () => {
   // State for input fields
   const [newPIN, setNewPIN] = useState('');
   const [confirmPIN, setPINconfirmation] = useState('');
+  const [doorOpenDuration, setDoorOpenDuration] = useState('');
 
   // Handle submit
   const handleSubmit = (e) => {
@@ -17,20 +18,23 @@ const ImpTerm = () => {
 
   return (
     <Container maxWidth="sm" style={{ marginTop: '50px' }}>
+      <Typography variant="h4" align="center" gutterBottom>
+        IMP Access Terminal
+      </Typography>
       <Box 
-        component="form" 
-        onSubmit={handleSubmit} 
-        display="flex" 
-        flexDirection="column" 
+        component="form"
+        onSubmit={handleSubmit}
+        display="flex"
+        flexDirection="column"
         gap={2}
       >
-        <Typography variant="h4" align="center" gutterBottom>
-          IMP Access Terminal
-        </Typography>
         {bluetoothAPISupported ? (
         <>
+          <Typography variant="h6" gutterBottom>
+            Access PIN
+          </Typography>
           <TextField
-            label="New access PIN"
+            label="New PIN"
             variant="outlined"
             value={newPIN}
             onChange={(e) => setNewPIN(e.target.value)}
@@ -45,6 +49,23 @@ const ImpTerm = () => {
             required
             type="number"
           />
+          <Typography variant="h6" gutterBottom>
+            Door open duration
+          </Typography>
+          <FormControl sx={{ width: '25ch' }} variant="outlined">
+            <InputLabel htmlFor="door-open-duration">Duration</InputLabel>
+            <OutlinedInput
+              label="Duration"
+              // variant="outlined"
+              id="door-open-duration"
+              value={doorOpenDuration}
+              onChange={(e) => setDoorOpenDuration(e.target.value)}
+              required
+              type="number"
+              endAdornment={<InputAdornment position="end">s</InputAdornment>}
+              placeholder='10'
+            />
+          </FormControl>
           <Button
             type="submit"
             variant="contained"
