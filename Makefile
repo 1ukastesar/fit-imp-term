@@ -16,11 +16,11 @@ monitor:
 doc: $(DOC_BIN)
 
 $(DOC_BIN): $(DOC_BASE)
-	pandoc $^ -o $@
+	pandoc -f commonmark+alerts $^ -o $@
 
 clean:
-	idf.py fullclean
 	rm -fr sdkconfig sdkconfig.old $(DOC_BIN) $(ARCHIVE_NAME)
+	idf.py fullclean
 
 deploy:
 	cd web-control && npm run deploy
