@@ -174,12 +174,11 @@ uint8_t gpio_keypad_key_lookup(uint32_t io_num)
         ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_HIGH));
         if(gpio_get_level(io_num) == GPIO_HIGH) {
             key = gpio_pad_map[row][col][0];
-            goto end;
+            break;
         }
         ESP_ERROR_CHECK(gpio_set_level(col_pin, GPIO_LOW));
     }
 
-    end:
     *gpio_w1ts_reg = gpio_keypad_col_mask; // Restore original state (all columns HIGH)
     return key;
 }
