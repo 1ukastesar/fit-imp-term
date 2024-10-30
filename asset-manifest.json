@@ -1,12 +1,12 @@
 {
   "files": {
-    "main.js": "/fit-imp-term/static/js/main.b2c63d3b.js",
+    "main.js": "/fit-imp-term/static/js/main.a8e9b0f7.js",
     "static/js/453.d4f2db67.chunk.js": "/fit-imp-term/static/js/453.d4f2db67.chunk.js",
     "index.html": "/fit-imp-term/index.html",
-    "main.b2c63d3b.js.map": "/fit-imp-term/static/js/main.b2c63d3b.js.map",
+    "main.a8e9b0f7.js.map": "/fit-imp-term/static/js/main.a8e9b0f7.js.map",
     "453.d4f2db67.chunk.js.map": "/fit-imp-term/static/js/453.d4f2db67.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/main.b2c63d3b.js"
+    "static/js/main.a8e9b0f7.js"
   ]
 }
