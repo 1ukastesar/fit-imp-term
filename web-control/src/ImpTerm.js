@@ -18,6 +18,7 @@ const ImpTerm = () => {
   };
 
   const checkPinValid = () => {
+    checkPinsMatch();
     if(!pinValid(pin) && pin.length > 0) {
       setPinValidity(false);
       setPinHelper('PIN must be a 4-10 digit number');
@@ -38,6 +39,7 @@ const ImpTerm = () => {
   const clearPinFlags = () => {
     setPinValidity(true);
     setPinHelper('');
+    clearConfirmationFlags();
   }
 
   const clearConfirmationFlags = () => {
@@ -101,7 +103,6 @@ const ImpTerm = () => {
               required
               type="number"
               helperText={pinHelper}
-              min='1'
             />
             <TextField
               label="PIN confirmation"
@@ -115,7 +116,6 @@ const ImpTerm = () => {
               required
               type="number"
               helperText={pinConfirmationHelper}
-              min='1'
             />
             <Button
               type="submit"
@@ -148,7 +148,6 @@ const ImpTerm = () => {
                 type="number"
                 endAdornment={<InputAdornment position="end">s</InputAdornment>}
                 placeholder='10'
-                min='10'
               />
             </FormControl>
             <Button
