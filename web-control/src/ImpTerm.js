@@ -18,7 +18,7 @@ const ImpTerm = () => {
   };
 
   const checkPinValid = () => {
-    if(!pinValid(pin)) {
+    if(!pinValid(pin) && pin.length > 0) {
       setPinValidity(false);
       setPinHelper('PIN must be a 4-10 digit number');
       return false;
@@ -45,23 +45,30 @@ const ImpTerm = () => {
     setPinConfirmationHelper('');
   }
 
-  // Handle submit
-  const handleSubmit = (e) => {
+  const handlePinSubmit = (e) => {
     e.preventDefault();
 
-    checkPinValid();
+    if(!checkPinValid())
+      return;
 
     if(!checkPinsMatch())
       return;
 
     console.log('Set access PIN:', pin);
-    console.log('Set door open duration:', doorOpenDuration);
 
     // Reset input fields
     setPin('');
     setPinConfirmation('');
-    setDoorOpenDuration('');
   };
+
+  const handleDurationSubmit = (e) => {
+    e.preventDefault();
+
+    console.log('Set door open duration:', doorOpenDuration);
+
+    // Reset input fields
+    setDoorOpenDuration('');
+  }
 
   const bluetoothAPISupported = navigator.bluetooth;
 
@@ -70,70 +77,89 @@ const ImpTerm = () => {
       <Typography variant="h4" align="center" gutterBottom>
         IMP Access Terminal
       </Typography>
-      <Box 
-        component="form"
-        onSubmit={handleSubmit}
-        display="flex"
-        flexDirection="column"
-        gap={2}
-      >
         {bluetoothAPISupported ? (
         <>
-          <Typography variant="h6" gutterBottom>
-            Access PIN
-          </Typography>
-          <TextField
-            label="New PIN"
-            variant="outlined"
-            id="new-pin"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            onFocus={() => clearPinFlags()}
-            onBlur={() => checkPinValid()}
-            error={!isPinValid}
-            required
-            type="number"
-            helperText={pinHelper}
-            min='1'
-          />
-          <TextField
-            label="PIN confirmation"
-            variant="outlined"
-            id="confirm-pin"
-            value={pinConfirmation}
-            onChange={(e) => setPinConfirmation(e.target.value)}
-            onFocus={() => clearConfirmationFlags()}
-            onBlur={() => checkPinsMatch()}
-            error={!isPinConfirmationValid}
-            required
-            type="number"
-            helperText={pinConfirmationHelper}
-            min='1'
-          />
-          <Typography variant="h6" gutterBottom>
-            Door open duration
-          </Typography>
-          <FormControl variant="outlined">
-            <InputLabel htmlFor="door-open-duration">Duration</InputLabel>
-            <OutlinedInput
-              label="Duration"
-              id="door-open-duration"
-              value={doorOpenDuration}
-              onChange={(e) => setDoorOpenDuration(e.target.value)}
+          <Box
+          component="form"
+          onSubmit={handlePinSubmit}
+          display="flex"
+          flexDirection="column"
+          gap={2}
+          >
+            <Typography variant="h6" gutterBottom>
+              Access PIN
+            </Typography>
+            <TextField
+              label="New PIN"
+              variant="outlined"
+              id="new-pin"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              onFocus={() => clearPinFlags()}
+              onBlur={() => checkPinValid()}
+              error={!isPinValid}
               required
               type="number"
-              endAdornment={<InputAdornment position="end">s</InputAdornment>}
-              placeholder='10'
+              helperText={pinHelper}
+              min='1'
             />
-          </FormControl>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
+            <TextField
+              label="PIN confirmation"
+              variant="outlined"
+              id="confirm-pin"
+              value={pinConfirmation}
+              onChange={(e) => setPinConfirmation(e.target.value)}
+              onFocus={() => clearConfirmationFlags()}
+              onBlur={() => checkPinsMatch()}
+              error={!isPinConfirmationValid}
+              required
+              type="number"
+              helperText={pinConfirmationHelper}
+              min='1'
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+            >
+              Change
+            </Button>
+          </Box>
+          <br />
+          <Box
+            component="form"
+            onSubmit={handleDurationSubmit}
+            display="flex"
+            flexDirection="column"
+            gap={2}
           >
-            Change
-          </Button>
+            <Typography variant="h6" gutterBottom>
+              Door open duration
+            </Typography>
+            <FormControl variant="outlined">
+              <InputLabel htmlFor="door-open-duration">Duration</InputLabel>
+              <OutlinedInput
+                label="Duration"
+                id="door-open-duration"
+                value={doorOpenDuration}
+                onChange={(e) => setDoorOpenDuration(e.target.value)}
+                required
+                type="number"
+                endAdornment={<InputAdornment position="end">s</InputAdornment>}
+                placeholder='10'
+                min='10'
+              />
+            </FormControl>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+            >
+              Change
+            </Button>
+          </Box>
         </>
         ) : (
           <>
@@ -150,7 +176,6 @@ const ImpTerm = () => {
             </Alert>
           </>
         )}
-      </Box>
     </Container>
   );
 };
