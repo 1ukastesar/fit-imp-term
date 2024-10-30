@@ -3,15 +3,64 @@ import { Container, TextField, Button, Typography, Box, Alert, InputAdornment, O
 
 const ImpTerm = () => {
   // State for input fields
-  const [newPIN, setNewPIN] = useState('');
-  const [confirmPIN, setPINconfirmation] = useState('');
+  const [pin, setPin] = useState('');
+  const [pinConfirmation, setPinConfirmation] = useState('');
   const [doorOpenDuration, setDoorOpenDuration] = useState('');
+
+  const [isPinValid, setPinValidity] = useState(true);
+  const [isPinConfirmationValid, setPinConfirmationValidity] = useState(true);
+  const [pinHelper, setPinHelper] = useState('');
+  const [pinConfirmationHelper, setPinConfirmationHelper] = useState('');
+
+  const pinValid = (pin) => {
+    const pinFormat = /^[0-9]{3}[0-9]+$/;
+    return pinFormat.test(pin);
+  };
+
+  const checkPinValid = () => {
+    if(!pinValid(pin)) {
+      setPinValidity(false);
+      setPinHelper('PIN must be a 4-10 digit number');
+      return false;
+    }
+    return true;
+  }
+
+  const checkPinsMatch = () => {
+    if(pin !== pinConfirmation) {
+      setPinConfirmationValidity(false);
+      setPinConfirmationHelper('PINs do not match');
+      return false;
+    }
+    return true;
+  }
+
+  const clearPinFlags = () => {
+    setPinValidity(true);
+    setPinHelper('');
+  }
+
+  const clearConfirmationFlags = () => {
+    setPinConfirmationValidity(true);
+    setPinConfirmationHelper('');
+  }
 
   // Handle submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('New access PIN:', newPIN);
-    console.log('PIN confirmation:', confirmPIN);
+
+    checkPinValid();
+
+    if(!checkPinsMatch())
+      return;
+
+    console.log('Set access PIN:', pin);
+    console.log('Set door open duration:', doorOpenDuration);
+
+    // Reset input fields
+    setPin('');
+    setPinConfirmation('');
+    setDoorOpenDuration('');
   };
 
   const bluetoothAPISupported = navigator.bluetooth;
@@ -36,27 +85,38 @@ const ImpTerm = () => {
           <TextField
             label="New PIN"
             variant="outlined"
-            value={newPIN}
-            onChange={(e) => setNewPIN(e.target.value)}
+            id="new-pin"
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            onFocus={() => clearPinFlags()}
+            onBlur={() => checkPinValid()}
+            error={!isPinValid}
             required
             type="number"
+            helperText={pinHelper}
+            min='1'
           />
           <TextField
             label="PIN confirmation"
             variant="outlined"
-            value={confirmPIN}
-            onChange={(e) => setPINconfirmation(e.target.value)}
+            id="confirm-pin"
+            value={pinConfirmation}
+            onChange={(e) => setPinConfirmation(e.target.value)}
+            onFocus={() => clearConfirmationFlags()}
+            onBlur={() => checkPinsMatch()}
+            error={!isPinConfirmationValid}
             required
             type="number"
+            helperText={pinConfirmationHelper}
+            min='1'
           />
           <Typography variant="h6" gutterBottom>
             Door open duration
           </Typography>
-          <FormControl sx={{ width: '25ch' }} variant="outlined">
+          <FormControl variant="outlined">
             <InputLabel htmlFor="door-open-duration">Duration</InputLabel>
             <OutlinedInput
               label="Duration"
-              // variant="outlined"
               id="door-open-duration"
               value={doorOpenDuration}
               onChange={(e) => setDoorOpenDuration(e.target.value)}
