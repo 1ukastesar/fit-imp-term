@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Container, FormControl, InputAdornment, InputLabel, OutlinedInput, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 
 const ImpTerm = () => {
@@ -91,38 +91,32 @@ const ImpTerm = () => {
             <Typography variant="h6" gutterBottom>
               Access PIN
             </Typography>
-            <FormControl variant="outlined">
-              <InputLabel htmlFor="new-pin">New PIN</InputLabel>
-              <OutlinedInput
-                label="New PIN"
-                variant="outlined"
-                id="new-pin"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                onFocus={() => clearPinFlags()}
-                onBlur={() => checkPinValid()}
-                error={!isPinValid}
-                required
-                type="number"
-                helperText={pinHelper}
-              />
-            </FormControl>
-            <FormControl variant="outlined">
-              <InputLabel htmlFor="confirm-pin">PIN confirmation</InputLabel>
-              <OutlinedInput
-                label="PIN confirmation"
-                variant="outlined"
-                id="confirm-pin"
-                value={pinConfirmation}
-                onChange={(e) => setPinConfirmation(e.target.value)}
-                onFocus={() => clearConfirmationFlags()}
-                onBlur={() => checkPinsMatch()}
-                error={!isPinConfirmationValid}
-                required
-                type="number"
-                helperText={pinConfirmationHelper}
-              />
-            </FormControl>
+            <TextField
+              label="New PIN"
+              variant="outlined"
+              id="new-pin"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              onFocus={() => clearPinFlags()}
+              onBlur={() => checkPinValid()}
+              error={!isPinValid}
+              required
+              type="number"
+              helperText={pinHelper}
+            />
+            <TextField
+              label="PIN confirmation"
+              variant="outlined"
+              id="confirm-pin"
+              value={pinConfirmation}
+              onChange={(e) => setPinConfirmation(e.target.value)}
+              onFocus={() => clearConfirmationFlags()}
+              onBlur={() => checkPinsMatch()}
+              error={!isPinConfirmationValid}
+              required
+              type="number"
+              helperText={pinConfirmationHelper}
+            />
             <Button
               type="submit"
               variant="contained"
