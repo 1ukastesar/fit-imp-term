@@ -13,7 +13,7 @@ const ImpTerm = () => {
   const [pinConfirmationHelper, setPinConfirmationHelper] = useState('');
 
   const pinValid = (pin) => {
-    const pinFormat = /^[0-9]{3}[0-9]+$/;
+    const pinFormat = /^[0-9]{4,10}$/;
     return pinFormat.test(pin);
   };
 
