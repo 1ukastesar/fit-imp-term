@@ -47,6 +47,10 @@ const ImpTerm = () => {
     setPinConfirmationHelper('');
   }
 
+  const handleConnect = (e) => {
+    e.preventDefault();
+  };
+
   const handlePinSubmit = (e) => {
     e.preventDefault();
 
@@ -81,6 +85,26 @@ const ImpTerm = () => {
       </Typography>
         {bluetoothAPISupported ? (
         <>
+          <Box
+            component="form"
+            onSubmit={handleConnect}
+            display="flex"
+            flexDirection="column"
+            gap={2}
+          >
+            <Typography variant="h6" gutterBottom>
+              Connection to the lock
+            </Typography>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+            >
+              Connect
+            </Button>
+          </Box>
+          <br />
           <Box
           component="form"
           onSubmit={handlePinSubmit}
