@@ -1,5 +1,8 @@
 import { Alert, Box, Button, Container, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 const ImpTerm = () => {
   // State for input fields
@@ -58,6 +61,8 @@ const ImpTerm = () => {
     if(!checkPinsMatch())
       return;
 
+    const pinChangeToast = toast.loading("PIN change pending...")
+
     console.log('Requested PIN change:', pin);
     const textEncoder = new TextEncoder();
     const pinConvUint8 = textEncoder.encode(pin);
@@ -89,10 +94,16 @@ const ImpTerm = () => {
       // Reset input fields
       setPin('');
       setPinConfirmation('');
+      toast.update(pinChangeToast, { render: "PIN updated", type: "success", isLoading: false, autoClose: true });
     })
     .catch(error => {
       console.error('Error:', error);
-      alert('Error: ' + error);
+      if(error.message.includes('GATT operation not permitted'))
+        toast.update(pinChangeToast, { render: "Operation not permitted", type: "error", isLoading: false, autoClose: true });
+      else if(error.message.includes('User cancelled'))
+        toast.update(pinChangeToast, { render: "Operation cancelled", type: "warning", isLoading: false, autoClose: true });
+      else
+      toast.update(pinChangeToast, { render: "An error occurred", type: "error", isLoading: false, autoClose: true });
     });
   };
 
