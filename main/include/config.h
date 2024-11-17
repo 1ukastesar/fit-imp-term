@@ -14,7 +14,7 @@
 
 // CONFIGURABLE OPTIONS
 
-#define DOOR_OPEN_TIME_SEC 10 // Time in seconds the door should stay open
+#define DEFAULT_OPEN_DURATION_SEC 10 // Time in seconds the door should stay open
 
 #define KEYPAD_DEFAULT_ACCESS_PIN "1234"
 #define KEYPAD_DEFAULT_ADMIN_PIN "00000000"

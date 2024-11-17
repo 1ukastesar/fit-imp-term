@@ -37,10 +37,10 @@ void nvs_set_defaults()
     ESP_ERROR_CHECK(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "access_pin", access_pin));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "admin_pin", admin_pin));
-    ESP_ERROR_CHECK(nvs_set_u16(keypad_nvs_handle, "door_duration", DOOR_OPEN_TIME_SEC));
+    ESP_ERROR_CHECK(nvs_set_u16(keypad_nvs_handle, "door_duration", DEFAULT_OPEN_DURATION_SEC));
     ESP_ERROR_CHECK(nvs_commit(keypad_nvs_handle));
     nvs_close(keypad_nvs_handle);
-    ESP_LOGE(PROJ_NAME, "Defaults set:\n\tAccess PIN: %s\n\tAdmin PIN: %s\n\tDoor open duration: %u", access_pin, admin_pin, DOOR_OPEN_TIME_SEC);
+    ESP_LOGE(PROJ_NAME, "Defaults set:\n\tAccess PIN: %s\n\tAdmin PIN: %s\n\tDoor open duration: %u", access_pin, admin_pin, DEFAULT_OPEN_DURATION_SEC);
 }
 
 void nvs_configure()
@@ -302,7 +302,7 @@ noreturn void door_open_for_defined_time_task()
     door_open();
     uint16_t duration;
     ESP_ERROR_CHECK(read_door_duration(&duration));
-    vTaskDelaySec(duration); // Leave open for DOOR_OPEN_TIME_SEC seconds
+    vTaskDelaySec(duration); // Leave open for DEFAULT_OPEN_DURATION_SEC seconds
     ESP_LOGI(PROJ_NAME, "Closing door");
     door_state = DOOR_CLOSE;
     door_close();
