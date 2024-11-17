@@ -7,6 +7,7 @@
 #include "gap.h"
 #include "common.h"
 #include "gatt_svc.h"
+#include "config.h"
 
 /* Private function declarations */
 inline static void format_addr(char *addr_str, uint8_t addr[]);
@@ -294,10 +295,10 @@ int gap_init(void) {
     ble_svc_gap_init();
 
     /* Set GAP device name */
-    rc = ble_svc_gap_device_name_set(DEVICE_NAME);
+    rc = ble_svc_gap_device_name_set(BLE_DEVICE_NAME);
     if (rc != 0) {
         ESP_LOGE(GATT_TAG, "failed to set device name to %s, error code: %d",
-                 DEVICE_NAME, rc);
+                 BLE_DEVICE_NAME, rc);
         return rc;
     }
     return rc;
