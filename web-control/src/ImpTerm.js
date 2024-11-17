@@ -64,9 +64,8 @@ const ImpTerm = () => {
     console.log('Converted PIN:', pinConvUint8);
 
     bluetoothAPI.requestDevice({
-      // filters: [{ services: [0x1815] }],
-      acceptAllDevices: true,
-      // optionalServices: ['1815']
+      filters: [{ services: [0x1815] }],
+      optionalServices: [0x1815]
     })
     .then(device => {
       console.log('Chosen device:', device.name);
