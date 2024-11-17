@@ -47,18 +47,6 @@ const ImpTerm = () => {
     setPinConfirmationHelper('');
   }
 
-  const handleConnect = (e) => {
-    e.preventDefault();
-    setDevice(true);
-    console.log('Connected');
-  };
-
-  const handleDisconnect = (e) => {
-    e.preventDefault();
-    setDevice(false);
-    console.log('Disconnected');
-  };
-
   const handlePinSubmit = (e) => {
     e.preventDefault();
 
@@ -86,8 +74,6 @@ const ImpTerm = () => {
 
   const bluetoothAPISupported = navigator.bluetooth;
 
-  const [device, setDevice] = useState(null);
-
   return (
     <Container maxWidth="sm" style={{ marginTop: '50px' }}>
       <Typography variant="h4" align="center" gutterBottom>
@@ -95,45 +81,6 @@ const ImpTerm = () => {
       </Typography>
         {bluetoothAPISupported ? (
         <>
-          <Box
-            display="flex"
-            flexDirection="column"
-            gap={2}
-          >
-            <Typography variant="h6" gutterBottom>
-              Connection status
-            </Typography>
-            {device ? (
-              <>
-                <Alert severity="success">
-                  <b>Connected</b>
-                  {device.name}
-                </Alert>
-                <Button
-                  onClick={handleDisconnect}
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                >
-                  Disconnect
-                </Button>
-              </>
-            ): (
-              <>
-                <Alert severity="error">
-                  <b>Disconnected</b>
-                </Alert>
-                <Button
-                  onClick={handleConnect}
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  >
-                  Connect
-                </Button>
-              </>
-            )}
-          </Box>
           <br />
           <Box
           component="form"
