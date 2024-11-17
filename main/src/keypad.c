@@ -113,7 +113,6 @@ esp_err_t update_door_duration(uint16_t duration)
 
 esp_err_t read_door_duration(uint16_t * duration)
 {
-    size_t len = sizeof(*duration);
     ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_get_u16(keypad_nvs_handle, "door_duration", duration), "Error reading duration from NVS", PROJ_NAME);
     nvs_close(keypad_nvs_handle);
