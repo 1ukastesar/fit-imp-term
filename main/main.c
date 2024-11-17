@@ -123,15 +123,15 @@ void app_main(void)
     ESP_LOGI(PROJ_NAME, "Starting tasks...");
 
     // Create long-running tasks
-    if(xTaskCreate(&led_heartbeat_task, "led_heartbeat", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
+    if(xTaskCreate(&led_heartbeat_task, "led_heartbeat", 4*1024, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
         ESP_LOGE(PROJ_NAME, "Failed to create heartbeat task");
         abort();
     }
-    if(xTaskCreate(&keypad_handler_task, "keypad_handler", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
+    if(xTaskCreate(&keypad_handler_task, "keypad_handler", 4*1024, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
         ESP_LOGE(PROJ_NAME, "Failed to create keypad handler task");
         abort();
     }
-    if(xTaskCreate(&door_handler_task, "door_handler", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
+    if(xTaskCreate(&door_handler_task, "door_handler", 4*1024, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
         ESP_LOGE(PROJ_NAME, "Failed to create door handler task");
         abort();
     }
