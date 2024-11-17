@@ -76,7 +76,7 @@ const ImpTerm = () => {
     try {
       if (device.gatt.connected)
           console.log('Device already connected')
-      return device.gatt
+      return device.gatt.connect();
     } catch(error) {
       try {
         device = await bluetoothAPI.requestDevice({
