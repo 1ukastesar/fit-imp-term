@@ -19,7 +19,6 @@
 #include "common.h"
 #include "gap.h"
 #include "gatt_svc.h"
-#include "heart_rate.h"
 
 /*
  * SPDX-FileCopyrightText: 2024 Espressif Systems (Shanghai) CO LTD
@@ -69,28 +68,6 @@ static void nimble_host_task(void *param) {
 
     /* This function won't return until nimble_port_stop() is executed */
     nimble_port_run();
-
-    /* Clean up at exit */
-    vTaskDelete(NULL);
-}
-
-// TODO remove
-static void heart_rate_task(void *param) {
-    /* Task entry log */
-    ESP_LOGI(GATT_TAG, "heart rate task has been started!");
-
-    /* Loop forever */
-    while (1) {
-        /* Update heart rate value every 1 second */
-        update_heart_rate();
-        ESP_LOGI(GATT_TAG, "heart rate updated to %d", get_heart_rate());
-
-        /* Send heart rate indication if enabled */
-        send_heart_rate_indication();
-
-        /* Sleep */
-        vTaskDelay(HEART_RATE_TASK_PERIOD);
-    }
 
     /* Clean up at exit */
     vTaskDelete(NULL);
@@ -163,10 +140,6 @@ void app_main(void)
     /* Start NimBLE host task thread and return */
     if(xTaskCreate(nimble_host_task, "nimble_host", 4*1024, NULL, 5, NULL) != pdPASS) {
         ESP_LOGE(PROJ_NAME, "Failed to create NimBLE host task");
-        abort();
-    }
-    if(xTaskCreate(heart_rate_task, "heart_rate", 4*1024, NULL, 5, NULL) != pdPASS) {
-        ESP_LOGE(PROJ_NAME, "Failed to create heart rate task");
         abort();
     }
 

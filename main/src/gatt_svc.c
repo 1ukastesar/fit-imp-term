@@ -6,30 +6,15 @@
 /* Includes */
 #include "gatt_svc.h"
 #include "common.h"
-#include "heart_rate.h"
 #include "config.h"
 #include "gpio.h"
 #include "keypad.h"
 
 /* Private function declarations */
-static int heart_rate_chr_access(uint16_t conn_handle, uint16_t attr_handle,
-                                 struct ble_gatt_access_ctxt *ctxt, void *arg);
 static int led_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                           struct ble_gatt_access_ctxt *ctxt, void *arg);
 static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                                  struct ble_gatt_access_ctxt *ctxt, void *arg);
-
-/* Private variables */
-/* Heart rate service */
-static const ble_uuid16_t heart_rate_svc_uuid = BLE_UUID16_INIT(0x180D);
-
-static uint8_t heart_rate_chr_val[2] = {0};
-static uint16_t heart_rate_chr_val_handle;
-static const ble_uuid16_t heart_rate_chr_uuid = BLE_UUID16_INIT(0x2A37);
-
-static uint16_t heart_rate_chr_conn_handle = 0;
-static bool heart_rate_chr_conn_handle_inited = false;
-static bool heart_rate_ind_status = false;
 
 /* Automation IO service */
 static const ble_uuid16_t auto_io_svc_uuid = BLE_UUID16_INIT(0x1815);
@@ -46,20 +31,6 @@ static const ble_uuid128_t access_pin_chr_uuid =
 
 /* GATT services table */
 static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
-    /* Heart rate service */
-    {.type = BLE_GATT_SVC_TYPE_PRIMARY,
-     .uuid = &heart_rate_svc_uuid.u,
-     .characteristics =
-         (struct ble_gatt_chr_def[]){
-             {/* Heart rate characteristic */
-              .uuid = &heart_rate_chr_uuid.u,
-              .access_cb = heart_rate_chr_access,
-              .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_INDICATE,
-              .val_handle = &heart_rate_chr_val_handle},
-             {
-                 0, /* No more characteristics in this service. */
-             }}},
-
     /* Automation IO service */
     {
         .type = BLE_GATT_SVC_TYPE_PRIMARY,
@@ -82,50 +53,6 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
         0, /* No more services. */
     },
 };
-
-/* Private functions */
-static int heart_rate_chr_access(uint16_t conn_handle, uint16_t attr_handle,
-                                 struct ble_gatt_access_ctxt *ctxt, void *arg) {
-    /* Local variables */
-    int rc;
-
-    /* Handle access events */
-    /* Note: Heart rate characteristic is read only */
-    switch (ctxt->op) {
-
-    /* Read characteristic event */
-    case BLE_GATT_ACCESS_OP_READ_CHR:
-        /* Verify connection handle */
-        if (conn_handle != BLE_HS_CONN_HANDLE_NONE) {
-            ESP_LOGI(GATT_TAG, "characteristic read; conn_handle=%d attr_handle=%d",
-                     conn_handle, attr_handle);
-        } else {
-            ESP_LOGI(GATT_TAG, "characteristic read by nimble stack; attr_handle=%d",
-                     attr_handle);
-        }
-
-        /* Verify attribute handle */
-        if (attr_handle == heart_rate_chr_val_handle) {
-            /* Update access buffer value */
-            heart_rate_chr_val[1] = get_heart_rate();
-            rc = os_mbuf_append(ctxt->om, &heart_rate_chr_val,
-                                sizeof(heart_rate_chr_val));
-            return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
-        }
-        goto error;
-
-    /* Unknown event */
-    default:
-        goto error;
-    }
-
-error:
-    ESP_LOGE(
-        GATT_TAG,
-        "unexpected access operation to heart rate characteristic, opcode: %d",
-        ctxt->op);
-    return BLE_ATT_ERR_UNLIKELY;
-}
 
 static int led_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                           struct ble_gatt_access_ctxt *ctxt, void *arg) {
@@ -229,15 +156,6 @@ error:
     return BLE_ATT_ERR_UNLIKELY;
 }
 
-/* Public functions */
-void send_heart_rate_indication(void) {
-    if (heart_rate_ind_status && heart_rate_chr_conn_handle_inited) {
-        ble_gatts_indicate(heart_rate_chr_conn_handle,
-                           heart_rate_chr_val_handle);
-        ESP_LOGI(GATT_TAG, "heart rate indication sent!");
-    }
-}
-
 /*
  *  Handle GATT attribute register events
  *      - Service register event
@@ -278,30 +196,6 @@ void gatt_svr_register_cb(struct ble_gatt_register_ctxt *ctxt, void *arg) {
     default:
         assert(0);
         break;
-    }
-}
-
-/*
- *  GATT server subscribe event callback
- *      1. Update heart rate subscription status
- */
-
-void gatt_svr_subscribe_cb(struct ble_gap_event *event) {
-    /* Check connection handle */
-    if (event->subscribe.conn_handle != BLE_HS_CONN_HANDLE_NONE) {
-        ESP_LOGI(GATT_TAG, "subscribe event; conn_handle=%d attr_handle=%d",
-                 event->subscribe.conn_handle, event->subscribe.attr_handle);
-    } else {
-        ESP_LOGI(GATT_TAG, "subscribe by nimble stack; attr_handle=%d",
-                 event->subscribe.attr_handle);
-    }
-
-    /* Check attribute handle */
-    if (event->subscribe.attr_handle == heart_rate_chr_val_handle) {
-        /* Update heart rate subscription status */
-        heart_rate_chr_conn_handle = event->subscribe.conn_handle;
-        heart_rate_chr_conn_handle_inited = true;
-        heart_rate_ind_status = event->subscribe.cur_indicate;
     }
 }
 
