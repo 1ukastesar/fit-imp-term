@@ -47,6 +47,8 @@ const pinValid = (pin) => {
   return pinFormat.test(pin);
 };
 
+class ConnectionAborted extends Error {}
+
 /**
  * Get the Bluetooth device
  * @returns {Promise<BluetoothDevice>} The Bluetooth device
@@ -74,6 +76,7 @@ const handleConnection = async (notification) => {
         console.error('Error:', error);
         toast.error('An error occurred');
       }
+      throw new ConnectionAborted();
     }
   }
 }
@@ -170,6 +173,8 @@ const ImpTerm = () => {
       toast.update(pinChangeToast, { render: "PIN updated", type: "success", isLoading: false, autoClose: true });
     })
     .catch(error => {
+      if(error instanceof ConnectionAborted)
+        return;
       handleChangeError(error, pinChangeToast);
     });
   };
@@ -204,6 +209,8 @@ const ImpTerm = () => {
       toast.update(durationChangeToast, { render: "Duration updated", type: "success", isLoading: false, autoClose: true });
     })
     .catch(error => {
+      if(error instanceof ConnectionAborted)
+        return;
       handleChangeError(error, durationChangeToast);
     });
   }
