@@ -186,9 +186,11 @@ const ImpTerm = () => {
         </>
         ) : (
           <>
+            <br />
             <Alert severity="error">
               <b>Web Bluetooth API is not supported in this browser.</b>
             </Alert>
+            <br />
             <Alert severity="info">
               Use the latest version of Chrome or Edge and enable the experimental Web Platform features flag:
               <br />
