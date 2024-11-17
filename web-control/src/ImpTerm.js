@@ -51,7 +51,7 @@ const pinValid = (pin) => {
  * Get the Bluetooth device
  * @returns {Promise<BluetoothDevice>} The Bluetooth device
  */
-const handleConnection = async () => {
+const handleConnection = async (notification) => {
   try {
     if (impTermDevice.gatt.connected)
         console.log('Device already connected')
@@ -66,9 +66,25 @@ const handleConnection = async () => {
       return impTermDevice.gatt.connect()
     }
     catch(error) {
-      console.error('Error:', error);
-      return null;
+      if(error.message.includes('User cancelled')) {
+        console.log('Connection cancelled');
+        toast.update(notification, { render: "Connection cancelled", type: "warning", isLoading: false, autoClose: true });
+      }
+      else {
+        console.error('Error:', error);
+        toast.error('An error occurred');
+      }
     }
+  }
+}
+
+const handleChangeError = (error, notification) => {
+  if(error.message.includes('GATT operation not permitted')) {
+    toast.update(notification, { render: "Operation not permitted", type: "error", isLoading: false, autoClose: true });
+  }
+  else {
+    console.error('Error:', error);
+    toast.update(notification, { render: "An error occurred", type: "error", isLoading: false, autoClose: true });
   }
 }
 
@@ -132,7 +148,7 @@ const ImpTerm = () => {
     const pinConvUint8 = textEncoder.encode(pin);
     console.log('Converted PIN:', pinConvUint8);
 
-    handleConnection()
+    handleConnection(pinChangeToast)
     .then(server => {
       console.log('Getting service...');
       return server.getPrimaryService(impTermSvcUuid);
@@ -154,13 +170,7 @@ const ImpTerm = () => {
       toast.update(pinChangeToast, { render: "PIN updated", type: "success", isLoading: false, autoClose: true });
     })
     .catch(error => {
-      console.error('Error:', error);
-      if(error.message.includes('GATT operation not permitted'))
-        toast.update(pinChangeToast, { render: "Operation not permitted", type: "error", isLoading: false, autoClose: true });
-      else if(error.message.includes('User cancelled'))
-        toast.update(pinChangeToast, { render: "Operation cancelled", type: "warning", isLoading: false, autoClose: true });
-      else
-      toast.update(pinChangeToast, { render: "An error occurred", type: "error", isLoading: false, autoClose: true });
+      handleChangeError(error, pinChangeToast);
     });
   };
 
@@ -173,7 +183,7 @@ const ImpTerm = () => {
     const durationConvUint8 = numToUint8Array(doorOpenDuration);
     console.log('Converted duration:', durationConvUint8);
 
-    handleConnection()
+    handleConnection(durationChangeToast)
     .then(server => {
       console.log('Getting service...');
       return server.getPrimaryService(impTermSvcUuid);
@@ -194,13 +204,7 @@ const ImpTerm = () => {
       toast.update(durationChangeToast, { render: "Duration updated", type: "success", isLoading: false, autoClose: true });
     })
     .catch(error => {
-      console.error('Error:', error);
-      if(error.message.includes('GATT operation not permitted'))
-        toast.update(durationChangeToast, { render: "Operation not permitted", type: "error", isLoading: false, autoClose: true });
-      else if(error.message.includes('User cancelled'))
-        toast.update(durationChangeToast, { render: "Operation cancelled", type: "warning", isLoading: false, autoClose: true });
-      else
-        toast.update(durationChangeToast, { render: "An error occurred", type: "error", isLoading: false, autoClose: true });
+      handleChangeError(error, durationChangeToast);
     });
   }
 
