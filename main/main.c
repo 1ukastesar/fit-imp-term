@@ -44,7 +44,7 @@ static void nimble_host_task(void *param);
  */
 static void on_stack_reset(int reason) {
     /* On reset, print reset reason to console */
-    ESP_LOGI(TAG, "nimble stack reset, reset reason: %d", reason);
+    ESP_LOGI(GATT_TAG, "nimble stack reset, reset reason: %d", reason);
 }
 
 static void on_stack_sync(void) {
@@ -65,7 +65,7 @@ static void nimble_host_config_init(void) {
 
 static void nimble_host_task(void *param) {
     /* Task entry log */
-    ESP_LOGI(TAG, "nimble host task has been started!");
+    ESP_LOGI(GATT_TAG, "nimble host task has been started!");
 
     /* This function won't return until nimble_port_stop() is executed */
     nimble_port_run();
@@ -77,13 +77,13 @@ static void nimble_host_task(void *param) {
 // TODO remove
 static void heart_rate_task(void *param) {
     /* Task entry log */
-    ESP_LOGI(TAG, "heart rate task has been started!");
+    ESP_LOGI(GATT_TAG, "heart rate task has been started!");
 
     /* Loop forever */
     while (1) {
         /* Update heart rate value every 1 second */
         update_heart_rate();
-        ESP_LOGI(TAG, "heart rate updated to %d", get_heart_rate());
+        ESP_LOGI(GATT_TAG, "heart rate updated to %d", get_heart_rate());
 
         /* Send heart rate indication if enabled */
         send_heart_rate_indication();

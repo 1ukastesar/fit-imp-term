@@ -31,7 +31,7 @@
 #include "nimble/nimble_port_freertos.h"
 
 /* Defines */
-#define TAG "NimBLE_GATT_Server"
+#define GATT_TAG "nimble-gatt"
 #define DEVICE_NAME "imp-term"
 
 #endif // COMMON_H
