@@ -10,7 +10,7 @@
 #include "config.h"
 #include "gpio.h"
 #include "keypad.h"
-#include "main.h"
+#include "common.h"
 
 #include <string.h>
 

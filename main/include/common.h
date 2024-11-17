@@ -1,13 +1,40 @@
 /*
+ * @file main/common.h
+ *
+ * @proj imp-term
+ * @brief Access terminal with ESP32 - IMP semestral project
+ * @author Lukas Tesar <xtesar43@stud.fit.vut.cz>
+ * @year 2024
+*/
+
+#ifndef IMP_TERM_COMMON_H
+#define IMP_TERM_COMMON_H
+
+
+// CONFIGURABLE OPTIONS
+
+#define PROJ_NAME "imp-term"
+#define GATT_TAG "nimble-gatt"
+
+// CONVENIENCE DEFINITIONS
+
+#define ms_in_s 1000
+#define seconds(seconds) (seconds * ms_in_s)
+
+#define vTaskDelayMSec(milis) vTaskDelay(milis              / portTICK_PERIOD_MS)
+#define vTaskDelaySec(milis)  vTaskDelay(milis * ms_in_s    / portTICK_PERIOD_MS)
+
+#define array_len(arr) (sizeof(arr) / sizeof(arr[0]))
+
+/*
  * SPDX-FileCopyrightText: 2024 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
-#ifndef COMMON_H
-#define COMMON_H
 
 /* Includes */
 /* STD APIs */
+#include <stdint.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -30,8 +57,6 @@
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
 
-/* Defines */
-#define GATT_TAG "nimble-gatt"
-#define DEVICE_NAME "imp-term"
+#include <freertos/FreeRTOS.h>
 
-#endif // COMMON_H
+#endif // IMP_TERM_COMMON_H

@@ -25,6 +25,8 @@
 #define KEYPAD_PIN_SUBMIT_KEY '#'
 #define KEYPAD_PIN_CHANGE_KEY '*'
 
+#define BLE_DEVICE_NAME "imp-term"
+
 // GPIO port number definitions
 #define STATUS_LED      GPIO_NUM_2  // Onboard LED GPIO pin
 #define DOOR_OPEN_LED   GPIO_NUM_19 // Door open LED GPIO pin

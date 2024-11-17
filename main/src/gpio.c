@@ -15,7 +15,7 @@
 #include "config.h"
 #include "gpio.h"
 #include "keypad.h"
-#include "main.h"
+#include "common.h"
 
 static char * gpio_pad_map[][3] =
 {
