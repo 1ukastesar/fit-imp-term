@@ -60,9 +60,38 @@ const ImpTerm = () => {
 
     console.log('Set access PIN:', pin);
 
-    // Reset input fields
-    setPin('');
-    setPinConfirmation('');
+    bluetoothAPI.requestDevice({
+      // filters: [{ services: ['56841198-7683-4116-9353-26881ff0dc43'] }]
+      acceptAllDevices: true,
+      optionalServices: ['56841198-7683-4116-9353-26881ff0dc43']
+    })
+    .then(device => {
+      console.log('Chosen device:', device.name);
+      return device.gatt.connect();
+    })
+    .then(server => {
+      console.log('Getting service...');
+      return server.getPrimaryService('56841198-7683-4116-9353-26881ff0dc43');
+    })
+    .then(service => {
+      console.log('Getting characteristic...');
+      return service.getCharacteristic('b97c2777-b164-4f45-a039-60cdf4897a16');
+    })
+    .then(characteristic => {
+      console.log('Writing value...');
+      const pinArray = new Uint8Array([parseInt(pin)]);
+      return characteristic.writeValue(pinArray);
+    })
+    .then(_ => {
+      console.log('PIN set successfully');
+      // Reset input fields
+      setPin('');
+      setPinConfirmation('');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error: ' + error);
+    });
   };
 
   const handleDurationSubmit = (e) => {
