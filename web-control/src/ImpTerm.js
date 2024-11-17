@@ -202,9 +202,6 @@ const ImpTerm = () => {
       else
         toast.update(durationChangeToast, { render: "An error occurred", type: "error", isLoading: false, autoClose: true });
     });
-
-    // Reset input fields
-    setDoorOpenDuration('');
   }
 
   return (
