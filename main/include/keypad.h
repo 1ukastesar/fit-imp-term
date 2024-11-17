@@ -19,6 +19,11 @@
 void nvs_configure();
 
 /*
+ * @brief Check if the door is open
+*/
+bool door_is_open();
+
+/*
  * @brief Update PIN in NVS storage
 */
 esp_err_t write_pin(const char * pin_to_write, const char * pin_name);

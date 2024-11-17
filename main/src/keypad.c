@@ -90,6 +90,11 @@ static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, boo
     return ESP_OK;
 }
 
+bool door_is_open()
+{
+    return door_state == DOOR_OPEN;
+}
+
 esp_err_t write_pin(const char * pin_to_write, const char * pin_name)
 {
     ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);

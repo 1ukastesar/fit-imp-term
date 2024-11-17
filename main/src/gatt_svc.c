@@ -199,11 +199,14 @@ static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
 
         /* Verify attribute handle */
         if (attr_handle == access_pin_chr_val_handle) {
+            /* Check if door is open */
+            if(!door_is_open()) {
+                return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
+            }
             /* Verify access buffer length */
             if (ctxt->om->om_len >= KEYPAD_PIN_MIN_LEN && ctxt->om->om_len <= KEYPAD_PIN_MAX_LEN) {
                 /* Update access PIN */
-                // TODO check if door is open
-                char pin[KEYPAD_PIN_MAX_LEN + 1];
+                char pin[KEYPAD_PIN_MAX_LEN + 1] = {0};
                 memcpy(pin, ctxt->om->om_data, sizeof(pin));
                 pin[ctxt->om->om_len] = '\0';
                 ESP_ERROR_CHECK(write_pin((const char *) pin, "access_pin"));
