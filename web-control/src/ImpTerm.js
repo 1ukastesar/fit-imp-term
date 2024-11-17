@@ -49,6 +49,14 @@ const ImpTerm = () => {
 
   const handleConnect = (e) => {
     e.preventDefault();
+    setDevice(true);
+    console.log('Connected');
+  };
+
+  const handleDisconnect = (e) => {
+    e.preventDefault();
+    setDevice(false);
+    console.log('Disconnected');
   };
 
   const handlePinSubmit = (e) => {
@@ -78,6 +86,8 @@ const ImpTerm = () => {
 
   const bluetoothAPISupported = navigator.bluetooth;
 
+  const [device, setDevice] = useState(null);
+
   return (
     <Container maxWidth="sm" style={{ marginTop: '50px' }}>
       <Typography variant="h4" align="center" gutterBottom>
@@ -86,23 +96,45 @@ const ImpTerm = () => {
         {bluetoothAPISupported ? (
         <>
           <Box
-            component="form"
-            onSubmit={handleConnect}
             display="flex"
             flexDirection="column"
             gap={2}
           >
             <Typography variant="h6" gutterBottom>
-              Connection to the lock
+              Connection status
             </Typography>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-            >
-              Connect
-            </Button>
+            {device ? (
+              <>
+                <Alert severity="success">
+                  <b>Connected</b>
+                </Alert>
+                <Typography variant="body1" gutterBottom>
+                  {device.name}
+                </Typography>
+                <Button
+                  onClick={handleDisconnect}
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                >
+                  Disconnect
+                </Button>
+              </>
+            ): (
+              <>
+                <Alert severity="error">
+                  <b>Disconnected</b>
+                </Alert>
+                <Button
+                  onClick={handleConnect}
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  >
+                  Connect
+                </Button>
+              </>
+            )}
           </Box>
           <br />
           <Box
