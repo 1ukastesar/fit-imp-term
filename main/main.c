@@ -15,11 +15,11 @@
 #include "gpio.h"
 #include "keypad.h"
 #include "main.h"
+
 #include "common.h"
 #include "gap.h"
 #include "gatt_svc.h"
 #include "heart_rate.h"
-#include "led.h"
 
 /*
  * SPDX-FileCopyrightText: 2024 Espressif Systems (Shanghai) CO LTD
@@ -74,6 +74,7 @@ static void nimble_host_task(void *param) {
     vTaskDelete(NULL);
 }
 
+// TODO remove
 static void heart_rate_task(void *param) {
     /* Task entry log */
     ESP_LOGI(TAG, "heart rate task has been started!");
@@ -114,11 +115,38 @@ void app_main(void)
     gpio_configure();
     nvs_configure();
 
+    int rc;
+    esp_err_t ret;
+
+    /* NimBLE stack initialization */
+    ret = nimble_port_init();
+    if (ret != ESP_OK) {
+        ESP_LOGE(PROJ_NAME, "failed to initialize nimble stack, error code: %d ",
+                 ret);
+        return;
+    }
+
+    /* GAP service initialization */
+    rc = gap_init();
+    if (rc != 0) {
+        ESP_LOGE(PROJ_NAME, "failed to initialize GAP service, error code: %d", rc);
+        return;
+    }
+
+    /* GATT server initialization */
+    rc = gatt_svc_init();
+    if (rc != 0) {
+        ESP_LOGE(PROJ_NAME, "failed to initialize GATT server, error code: %d", rc);
+        return;
+    }
+
+    /* NimBLE host configuration initialization */
+    nimble_host_config_init();
+
     ESP_LOGI(PROJ_NAME, "Initialization complete");
     ESP_LOGI(PROJ_NAME, "Starting tasks...");
 
     // Create long-running tasks
-    // Uncomment to enable heartbeat
     if(xTaskCreate(&led_heartbeat_task, "led_heartbeat", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
         ESP_LOGE(PROJ_NAME, "Failed to create heartbeat task");
         abort();
@@ -127,41 +155,20 @@ void app_main(void)
         ESP_LOGE(PROJ_NAME, "Failed to create keypad handler task");
         abort();
     }
-
     if(xTaskCreate(&door_handler_task, "door_handler", 2048, NULL, tskIDLE_PRIORITY, NULL) != pdPASS) {
         ESP_LOGE(PROJ_NAME, "Failed to create door handler task");
         abort();
     }
 
-    int rc;
-    esp_err_t ret;
-
-    /* NimBLE stack initialization */
-    ret = nimble_port_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "failed to initialize nimble stack, error code: %d ",
-                 ret);
-        return;
-    }
-
-    /* GAP service initialization */
-    rc = gap_init();
-    if (rc != 0) {
-        ESP_LOGE(TAG, "failed to initialize GAP service, error code: %d", rc);
-        return;
-    }
-
-    /* GATT server initialization */
-    rc = gatt_svc_init();
-    if (rc != 0) {
-        ESP_LOGE(TAG, "failed to initialize GATT server, error code: %d", rc);
-        return;
-    }
-
-    /* NimBLE host configuration initialization */
-    nimble_host_config_init();
-
     /* Start NimBLE host task thread and return */
-    xTaskCreate(nimble_host_task, "NimBLE Host", 4*1024, NULL, 5, NULL);
-    xTaskCreate(heart_rate_task, "Heart Rate", 4*1024, NULL, 5, NULL);
+    if(xTaskCreate(nimble_host_task, "nimble_host", 4*1024, NULL, 5, NULL) != pdPASS) {
+        ESP_LOGE(PROJ_NAME, "Failed to create NimBLE host task");
+        abort();
+    }
+    if(xTaskCreate(heart_rate_task, "heart_rate", 4*1024, NULL, 5, NULL) != pdPASS) {
+        ESP_LOGE(PROJ_NAME, "Failed to create heart rate task");
+        abort();
+    }
+
+    return;
 }

@@ -7,7 +7,8 @@
 #include "gatt_svc.h"
 #include "common.h"
 #include "heart_rate.h"
-#include "led.h"
+#include "config.h"
+#include "gpio.h"
 
 /* Private function declarations */
 static int heart_rate_chr_access(uint16_t conn_handle, uint16_t attr_handle,
@@ -139,10 +140,10 @@ static int led_chr_access(uint16_t conn_handle, uint16_t attr_handle,
             if (ctxt->om->om_len == 1) {
                 /* Turn the LED on or off according to the operation bit */
                 if (ctxt->om->om_data[0]) {
-                    led_on();
+                    gpio_set_level(STATUS_LED, GPIO_HIGH);
                     ESP_LOGI(TAG, "led turned on!");
                 } else {
-                    led_off();
+                    gpio_set_level(STATUS_LED, GPIO_LOW);
                     ESP_LOGI(TAG, "led turned off!");
                 }
             } else {
