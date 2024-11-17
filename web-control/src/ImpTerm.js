@@ -56,6 +56,29 @@ const ImpTerm = () => {
     setPinConfirmationHelper('');
   }
 
+  var device = null;
+
+  const getBluetoothDevice = async () => {
+    try {
+      if (device.gatt.connected)
+          console.log('Device already connected')
+      return device.gatt;
+    } catch(error) {
+      try {
+        device = await bluetoothAPI.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [impTermSvcUuid]
+        });
+        console.log('Chosen device:', device.name);
+        return device.gatt.connect()
+      }
+      catch(error) {
+        console.error('Error:', error);
+        return null;
+      }
+    }
+  }
+
   const handlePinSubmit = (e) => {
     e.preventDefault();
 
@@ -72,14 +95,7 @@ const ImpTerm = () => {
     const pinConvUint8 = textEncoder.encode(pin);
     console.log('Converted PIN:', pinConvUint8);
 
-    bluetoothAPI.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [impTermSvcUuid]
-    })
-    .then(device => {
-      console.log('Chosen device:', device.name);
-      return device.gatt.connect();
-    })
+    getBluetoothDevice()
     .then(server => {
       console.log('Getting service...');
       return server.getPrimaryService(impTermSvcUuid);
