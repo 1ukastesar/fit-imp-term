@@ -4,6 +4,10 @@ import { toast } from 'react-toastify';
 
 import 'react-toastify/dist/ReactToastify.css';
 
+const impTermSvcUuid = "automation_io";
+const accessPinChrUuid = 'bf6036dc-5b62-425e-bed4-9b7f6ba1c921';
+const doorOpenDurationChrUuid = '4e3ee180-27a0-4894-815a-c98a07ba1555';
+
 const ImpTerm = () => {
   // State for input fields
   const [pin, setPin] = useState('');
@@ -70,7 +74,7 @@ const ImpTerm = () => {
 
     bluetoothAPI.requestDevice({
       acceptAllDevices: true,
-      optionalServices: ["automation_io"]
+      optionalServices: [impTermSvcUuid]
     })
     .then(device => {
       console.log('Chosen device:', device.name);
@@ -78,11 +82,11 @@ const ImpTerm = () => {
     })
     .then(server => {
       console.log('Getting service...');
-      return server.getPrimaryService("automation_io");
+      return server.getPrimaryService(impTermSvcUuid);
     })
     .then(service => {
       console.log('Getting characteristic...');
-      return service.getCharacteristic('bf6036dc-5b62-425e-bed4-9b7f6ba1c921');
+      return service.getCharacteristic(accessPinChrUuid);
     })
     .then(characteristic => {
       console.log('Writing value...');
