@@ -61,7 +61,8 @@ const handleConnection = async (notification) => {
   } catch(error) {
     try {
       impTermDevice = await bluetoothAPI.requestDevice({
-        acceptAllDevices: true,
+        // acceptAllDevices: true,
+        filters: [{ name: 'imp-term' }],
         optionalServices: [impTermSvcUuid]
       });
       console.log(`Selected device: ${impTermDevice.name} (${impTermDevice.id})`);
