@@ -8,6 +8,20 @@ const impTermSvcUuid = "automation_io";
 const accessPinChrUuid = 'bf6036dc-5b62-425e-bed4-9b7f6ba1c921';
 const doorOpenDurationChrUuid = '4e3ee180-27a0-4894-815a-c98a07ba1555';
 
+const UINT16_MAX = Math.pow(2, 16) - 1;
+
+// @cite Peschel, R. (2022). "How to convert a Javascript number to a Uint8Array?" Stack Overflow. Available at: https://stackoverflow.com/a/72476502 [Accessed 17 Nov. 2024].
+function numToUint8Array(num) {
+  let arr = new Uint8Array(2);
+
+  for (let i = 0; i < 8; i++) {
+    arr[i] = num % 256;
+    num = Math.floor(num / 256);
+  }
+
+  return arr;
+}
+
 const ImpTerm = () => {
   // State for input fields
   const [pin, setPin] = useState('');
@@ -62,7 +76,7 @@ const ImpTerm = () => {
     try {
       if (device.gatt.connected)
           console.log('Device already connected')
-      return device.gatt;
+      return device.gatt
     } catch(error) {
       try {
         device = await bluetoothAPI.requestDevice({
@@ -130,7 +144,41 @@ const ImpTerm = () => {
   const handleDurationSubmit = (e) => {
     e.preventDefault();
 
-    console.log('Set door open duration:', doorOpenDuration);
+    const durationChangeToast = toast.loading("Duration change pending...")
+    console.log('Requested door open duration change:', doorOpenDuration);
+
+    const durationConvUint8 = numToUint8Array(doorOpenDuration);
+    console.log('Converted duration:', durationConvUint8);
+
+    getBluetoothDevice()
+    .then(server => {
+      console.log('Getting service...');
+      return server.getPrimaryService(impTermSvcUuid);
+    })
+    .then(service => {
+      console.log('Getting characteristic...');
+      return service.getCharacteristic(doorOpenDurationChrUuid);
+    })
+    .then(characteristic => {
+      console.log('Writing value...');
+      console.log('Duration array:', durationConvUint8);
+      return characteristic.writeValue(durationConvUint8);
+    })
+    .then(_ => {
+      console.log('Duration set successfully');
+      // Reset input fields
+      setDoorOpenDuration('');
+      toast.update(durationChangeToast, { render: "Duration updated", type: "success", isLoading: false, autoClose: true });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      if(error.message.includes('GATT operation not permitted'))
+        toast.update(durationChangeToast, { render: "Operation not permitted", type: "error", isLoading: false, autoClose: true });
+      else if(error.message.includes('User cancelled'))
+        toast.update(durationChangeToast, { render: "Operation cancelled", type: "warning", isLoading: false, autoClose: true });
+      else
+        toast.update(durationChangeToast, { render: "An error occurred", type: "error", isLoading: false, autoClose: true });
+    });
 
     // Reset input fields
     setDoorOpenDuration('');
@@ -211,6 +259,7 @@ const ImpTerm = () => {
                 type="number"
                 endAdornment={<InputAdornment position="end">s</InputAdornment>}
                 placeholder='10'
+                inputProps={{ min: 1, max: UINT16_MAX }}
               />
             </FormControl>
             <Button

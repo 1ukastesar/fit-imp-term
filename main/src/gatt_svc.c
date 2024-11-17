@@ -11,7 +11,7 @@
 #include "keypad.h"
 
 /* Private function declarations */
-static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
+static int ble_chr_access_cb(uint16_t conn_handle, uint16_t attr_handle,
                                  struct ble_gatt_access_ctxt *ctxt, void *arg);
 
 /* Automation IO service */
@@ -23,6 +23,12 @@ static const ble_uuid128_t access_pin_chr_uuid =
     BLE_UUID128_INIT(0x21, 0xc9, 0xa1, 0x6b, 0x7f, 0x9b, 0xd4, 0xbe, 0x5e, 0x42,
                      0x62, 0x5b, 0xdc, 0x36, 0x60, 0xbf);
 
+/* Door duration characteristics */
+static uint16_t door_duration_chr_val_handle;
+static const ble_uuid128_t door_duration_chr_uuid =
+    BLE_UUID128_INIT(0x55, 0x15, 0xba, 0x07, 0x8a, 0xc9, 0x5a, 0x81, 0x94, 0x48,
+                     0xa0, 0x27, 0x80, 0xe1, 0x3e, 0x4e);
+
 /* GATT services table */
 static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
     /* Automation IO service */
@@ -32,9 +38,14 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
         .characteristics =
             (struct ble_gatt_chr_def[]){/* Access PIN characteristic */
                                         {.uuid = &access_pin_chr_uuid.u,
-                                         .access_cb = access_pin_chr_access,
+                                         .access_cb = ble_chr_access_cb,
                                          .flags = BLE_GATT_CHR_F_WRITE,
                                          .val_handle = &access_pin_chr_val_handle},
+                                        /* Door duration characteristic */
+                                        {.uuid = &door_duration_chr_uuid.u,
+                                         .access_cb = ble_chr_access_cb,
+                                         .flags = BLE_GATT_CHR_F_WRITE,
+                                         .val_handle = &door_duration_chr_val_handle},
                                         {0}},
     },
 
@@ -43,10 +54,9 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
     },
 };
 
-static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
+static int ble_chr_access_cb(uint16_t conn_handle, uint16_t attr_handle,
                           struct ble_gatt_access_ctxt *ctxt, void *arg) {
     /* Handle access events */
-    /* Note: Access PIN characteristic is write only */
     switch (ctxt->op) {
 
     /* Write characteristic event */
@@ -61,12 +71,13 @@ static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                      attr_handle);
         }
 
+        /* Check if door is open */
+        if(!door_is_open()) {
+            return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
+        }
+
         /* Verify attribute handle */
         if (attr_handle == access_pin_chr_val_handle) {
-            /* Check if door is open */
-            if(!door_is_open()) {
-                return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
-            }
             /* Verify access buffer length */
             if (ctxt->om->om_len >= KEYPAD_PIN_MIN_LEN && ctxt->om->om_len <= KEYPAD_PIN_MAX_LEN) {
                 /* Update access PIN */
@@ -74,6 +85,18 @@ static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                 memcpy(pin, ctxt->om->om_data, sizeof(pin));
                 pin[ctxt->om->om_len] = '\0';
                 ESP_ERROR_CHECK(write_pin((const char *) pin, "access_pin"));
+                return ESP_OK;
+            } else {
+                goto error;
+            }
+        } else
+        if (attr_handle == door_duration_chr_val_handle) {
+            /* Verify access buffer length */
+            if (ctxt->om->om_len == 2) {
+                /* Update door duration */
+                uint16_t duration = 0;
+                memcpy(&duration, ctxt->om->om_data, ctxt->om->om_len);
+                ESP_ERROR_CHECK(update_door_duration(duration));
                 return ESP_OK;
             } else {
                 goto error;

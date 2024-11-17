@@ -24,6 +24,11 @@ void nvs_configure();
 bool door_is_open();
 
 /*
+ * @brief Update door duration in NVS storage
+*/
+esp_err_t update_door_duration(uint16_t duration);
+
+/*
  * @brief Update PIN in NVS storage
 */
 esp_err_t write_pin(const char * pin_to_write, const char * pin_name);

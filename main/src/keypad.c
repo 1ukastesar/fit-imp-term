@@ -37,9 +37,10 @@ void nvs_set_defaults()
     ESP_ERROR_CHECK(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "access_pin", access_pin));
     ESP_ERROR_CHECK(nvs_set_str(keypad_nvs_handle, "admin_pin", admin_pin));
+    ESP_ERROR_CHECK(nvs_set_u16(keypad_nvs_handle, "door_duration", DOOR_OPEN_TIME_SEC));
     ESP_ERROR_CHECK(nvs_commit(keypad_nvs_handle));
     nvs_close(keypad_nvs_handle);
-    ESP_LOGE(PROJ_NAME, "Defaults set:\n\tAccess PIN: %s\n\tAdmin PIN: %s", access_pin, admin_pin);
+    ESP_LOGE(PROJ_NAME, "Defaults set:\n\tAccess PIN: %s\n\tAdmin PIN: %s\n\tDoor open duration: %u", access_pin, admin_pin, DOOR_OPEN_TIME_SEC);
 }
 
 void nvs_configure()
@@ -93,6 +94,25 @@ static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, boo
 bool door_is_open()
 {
     return door_state == DOOR_OPEN;
+}
+
+esp_err_t update_door_duration(uint16_t duration)
+{
+    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_set_u16(keypad_nvs_handle, "door_duration", duration), "Error writing duration to NVS", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_commit(keypad_nvs_handle), "Error committing changes", PROJ_NAME);
+    nvs_close(keypad_nvs_handle);
+    ESP_LOGI(PROJ_NAME, "Door duration updated to %d seconds", duration);
+    return ESP_OK;
+}
+
+esp_err_t read_door_duration(uint16_t * duration)
+{
+    size_t len = sizeof(*duration);
+    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_get_u16(keypad_nvs_handle, "door_duration", duration), "Error reading duration from NVS", PROJ_NAME);
+    nvs_close(keypad_nvs_handle);
+    return ESP_OK;
 }
 
 esp_err_t write_pin(const char * pin_to_write, const char * pin_name)
@@ -281,7 +301,9 @@ void door_close()
 noreturn void door_open_for_defined_time_task()
 {
     door_open();
-    vTaskDelaySec(DOOR_OPEN_TIME_SEC); // Leave open for DOOR_OPEN_TIME_SEC seconds
+    uint16_t duration;
+    ESP_ERROR_CHECK(read_door_duration(&duration));
+    vTaskDelaySec(duration); // Leave open for DOOR_OPEN_TIME_SEC seconds
     ESP_LOGI(PROJ_NAME, "Closing door");
     door_state = DOOR_CLOSE;
     door_close();
