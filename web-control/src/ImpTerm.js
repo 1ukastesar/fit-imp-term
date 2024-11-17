@@ -107,10 +107,8 @@ const ImpTerm = () => {
               <>
                 <Alert severity="success">
                   <b>Connected</b>
-                </Alert>
-                <Typography variant="body1" gutterBottom>
                   {device.name}
-                </Typography>
+                </Alert>
                 <Button
                   onClick={handleDisconnect}
                   variant="contained"
