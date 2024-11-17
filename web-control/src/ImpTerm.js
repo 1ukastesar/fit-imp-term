@@ -2,13 +2,26 @@ import { Alert, Box, Button, Container, FormControl, InputAdornment, InputLabel,
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
+// BLE service and characteristic UUIDs
 const impTermSvcUuid = "automation_io";
 const accessPinChrUuid = 'bf6036dc-5b62-425e-bed4-9b7f6ba1c921';
 const doorOpenDurationChrUuid = '4e3ee180-27a0-4894-815a-c98a07ba1555';
 
+// Convenience definitions
 const UINT16_MAX = Math.pow(2, 16) - 1;
+const bluetoothAPI = navigator.bluetooth;
 
-// @cite Peschel, R. (2022). "How to convert a Javascript number to a Uint8Array?" Stack Overflow. Available at: https://stackoverflow.com/a/72476502 [Accessed 17 Nov. 2024].
+/**
+ * Convert a number to a Uint8Array
+ * @param {number} num The number to convert
+ * @returns {Uint8Array} The converted number
+ * @example numToUint8Array(0) => Uint8Array(2) [0, 0]
+ * @example numToUint8Array(1) => Uint8Array(2) [1, 0]
+ * @example numToUint8Array(256) => Uint8Array(2) [0, 1]
+ * @example numToUint8Array(65535) => Uint8Array(2) [255, 255]
+ * @example numToUint8Array(1234) => Uint8Array(2) [210, 4]
+ * @cite Peschel, R. (2022). "How to convert a Javascript number to a Uint8Array?" Stack Overflow. Available at: https://stackoverflow.com/a/72476502 [Accessed 17 Nov. 2024].
+*/
 function numToUint8Array(num) {
   let arr = new Uint8Array(2);
 
@@ -20,6 +33,48 @@ function numToUint8Array(num) {
   return arr;
 }
 
+/**
+ * Check if the PIN is a valid 4-10 digit number
+ * @param {string} pin The PIN to validate
+ * @returns {boolean} True if the PIN is valid, false otherwise
+ * @example pinValid('1234') => true
+ * @example pinValid('123') => false
+ * @example pinValid('12345') => true
+ * @example pinValid('12345a') => false
+*/
+const pinValid = (pin) => {
+  const pinFormat = /^[0-9]{4,10}$/;
+  return pinFormat.test(pin);
+};
+
+/**
+ * Get the Bluetooth device
+ * @returns {Promise<BluetoothDevice>} The Bluetooth device
+ */
+const handleConnection = async () => {
+  try {
+    if (impTermDevice.gatt.connected)
+        console.log('Device already connected')
+    return impTermDevice.gatt.connect();
+  } catch(error) {
+    try {
+      impTermDevice = await bluetoothAPI.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [impTermSvcUuid]
+      });
+      console.log('Chosen device:', impTermDevice.name);
+      return impTermDevice.gatt.connect()
+    }
+    catch(error) {
+      console.error('Error:', error);
+      return null;
+    }
+  }
+}
+
+// Global variable to store the connected device
+var impTermDevice = null;
+
 const ImpTerm = () => {
   // State for input fields
   const [pin, setPin] = useState('');
@@ -30,13 +85,6 @@ const ImpTerm = () => {
   const [isPinConfirmationValid, setPinConfirmationValidity] = useState(true);
   const [pinHelper, setPinHelper] = useState('');
   const [pinConfirmationHelper, setPinConfirmationHelper] = useState('');
-
-  const bluetoothAPI = navigator.bluetooth;
-
-  const pinValid = (pin) => {
-    const pinFormat = /^[0-9]{4,10}$/;
-    return pinFormat.test(pin);
-  };
 
   const checkPinValid = () => {
     checkPinsMatch();
@@ -68,29 +116,6 @@ const ImpTerm = () => {
     setPinConfirmationHelper('');
   }
 
-  var device = null;
-
-  const getBluetoothDevice = async () => {
-    try {
-      if (device.gatt.connected)
-          console.log('Device already connected')
-      return device.gatt.connect();
-    } catch(error) {
-      try {
-        device = await bluetoothAPI.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: [impTermSvcUuid]
-        });
-        console.log('Chosen device:', device.name);
-        return device.gatt.connect()
-      }
-      catch(error) {
-        console.error('Error:', error);
-        return null;
-      }
-    }
-  }
-
   const handlePinSubmit = (e) => {
     e.preventDefault();
 
@@ -107,7 +132,7 @@ const ImpTerm = () => {
     const pinConvUint8 = textEncoder.encode(pin);
     console.log('Converted PIN:', pinConvUint8);
 
-    getBluetoothDevice()
+    handleConnection()
     .then(server => {
       console.log('Getting service...');
       return server.getPrimaryService(impTermSvcUuid);
@@ -148,7 +173,7 @@ const ImpTerm = () => {
     const durationConvUint8 = numToUint8Array(doorOpenDuration);
     console.log('Converted duration:', durationConvUint8);
 
-    getBluetoothDevice()
+    handleConnection()
     .then(server => {
       console.log('Getting service...');
       return server.getPrimaryService(impTermSvcUuid);
