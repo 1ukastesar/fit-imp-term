@@ -12,6 +12,8 @@ const ImpTerm = () => {
   const [pinHelper, setPinHelper] = useState('');
   const [pinConfirmationHelper, setPinConfirmationHelper] = useState('');
 
+  const bluetoothAPI = navigator.bluetooth;
+
   const pinValid = (pin) => {
     const pinFormat = /^[0-9]{4,10}$/;
     return pinFormat.test(pin);
@@ -72,14 +74,12 @@ const ImpTerm = () => {
     setDoorOpenDuration('');
   }
 
-  const bluetoothAPISupported = navigator.bluetooth;
-
   return (
     <Container maxWidth="sm" style={{ marginTop: '50px' }}>
       <Typography variant="h4" align="center" gutterBottom>
         IMP Access Terminal
       </Typography>
-        {bluetoothAPISupported ? (
+        {bluetoothAPI ? (
         <>
           <br />
           <Box
