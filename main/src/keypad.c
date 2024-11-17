@@ -74,7 +74,7 @@ void nvs_configure()
 static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, bool * is_correct)
 {
     *is_correct = false;
-    char pin_set[KEYPAD_PIN_MAX_LEN] = {0};
+    char pin_set[KEYPAD_PIN_MAX_LEN + 1] = {0}; // +1 for null terminator
     size_t len = sizeof(pin_set);
     ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_get_str(keypad_nvs_handle, pin_name, pin_set, &len), "Error reading PIN from NVS", PROJ_NAME);
