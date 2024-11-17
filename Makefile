@@ -26,4 +26,4 @@ deploy:
 	cd web-control && npm run deploy
 
 pack: doc
-	zip -r $(ARCHIVE_NAME) main Makefile $(DOC_BASE) $(DOC_BIN) sdkconfig.defaults
+	zip -r $(ARCHIVE_NAME) main Makefile $(DOC_BASE) $(DOC_BIN) sdkconfig.defaults web-control -x main/build/\* web-control/node_modules/\* web-control/build/\*
