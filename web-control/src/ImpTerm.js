@@ -2,8 +2,6 @@ import { Alert, Box, Button, Container, FormControl, InputAdornment, InputLabel,
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
-import 'react-toastify/dist/ReactToastify.css';
-
 const impTermSvcUuid = "automation_io";
 const accessPinChrUuid = 'bf6036dc-5b62-425e-bed4-9b7f6ba1c921';
 const doorOpenDurationChrUuid = '4e3ee180-27a0-4894-815a-c98a07ba1555';

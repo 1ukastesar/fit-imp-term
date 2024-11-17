@@ -1,7 +1,8 @@
 import * as React from 'react';
+import { Bounce, ToastContainer } from 'react-toastify';
 import ImpTerm from './ImpTerm';
-import { ToastContainer } from 'react-toastify';
-import { Bounce } from 'react-toastify';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
