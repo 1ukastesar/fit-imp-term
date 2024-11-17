@@ -288,7 +288,7 @@ const ImpTerm = () => {
               color="primary"
               fullWidth
             >
-              Change
+              Update
             </Button>
           </Box>
         </>
