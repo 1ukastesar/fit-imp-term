@@ -16,7 +16,8 @@
         "format": "c",
         "utility": "c",
         "*.tcc": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "*.inc": "c"
     },
     "C_Cpp.intelliSenseEngine": "default",
 }
