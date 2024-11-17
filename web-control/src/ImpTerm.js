@@ -64,12 +64,12 @@ const handleConnection = async (notification) => {
         acceptAllDevices: true,
         optionalServices: [impTermSvcUuid]
       });
-      console.log('Chosen device:', impTermDevice.name);
+      console.log(`Selected device: ${impTermDevice.name} (${impTermDevice.id})`);
       return impTermDevice.gatt.connect()
     }
     catch(error) {
       if(error.message.includes('User cancelled')) {
-        console.log('Connection cancelled');
+        console.log('Transaction cancelled by user');
         toast.update(notification, { render: "Connection cancelled", type: "warning", isLoading: false, autoClose: true });
       }
       else {
@@ -83,6 +83,7 @@ const handleConnection = async (notification) => {
 
 const handleChangeError = (error, notification) => {
   if(error.message.includes('GATT operation not permitted')) {
+    console.error('Operation not permitted: You need to unlock the device first');
     toast.update(notification, { render: "Operation not permitted", type: "error", isLoading: false, autoClose: true });
   }
   else {
@@ -146,10 +147,9 @@ const ImpTerm = () => {
 
     const pinChangeToast = toast.loading("PIN change pending...")
 
-    console.log('Requested PIN change:', pin);
+    console.log('Requested access PIN change:', pin);
     const textEncoder = new TextEncoder();
     const pinConvUint8 = textEncoder.encode(pin);
-    console.log('Converted PIN:', pinConvUint8);
 
     handleConnection(pinChangeToast)
     .then(server => {
@@ -162,7 +162,6 @@ const ImpTerm = () => {
     })
     .then(characteristic => {
       console.log('Writing value...');
-      console.log('PIN array:', pinConvUint8);
       return characteristic.writeValue(pinConvUint8);
     })
     .then(_ => {
@@ -186,7 +185,6 @@ const ImpTerm = () => {
     console.log('Requested door open duration change:', doorOpenDuration);
 
     const durationConvUint8 = numToUint8Array(doorOpenDuration);
-    console.log('Converted duration:', durationConvUint8);
 
     handleConnection(durationChangeToast)
     .then(server => {
@@ -199,7 +197,6 @@ const ImpTerm = () => {
     })
     .then(characteristic => {
       console.log('Writing value...');
-      console.log('Duration array:', durationConvUint8);
       return characteristic.writeValue(durationConvUint8);
     })
     .then(_ => {
