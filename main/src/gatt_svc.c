@@ -9,12 +9,15 @@
 #include "heart_rate.h"
 #include "config.h"
 #include "gpio.h"
+#include "keypad.h"
 
 /* Private function declarations */
 static int heart_rate_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                                  struct ble_gatt_access_ctxt *ctxt, void *arg);
 static int led_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                           struct ble_gatt_access_ctxt *ctxt, void *arg);
+static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
+                                 struct ble_gatt_access_ctxt *ctxt, void *arg);
 
 /* Private variables */
 /* Heart rate service */
@@ -34,6 +37,12 @@ static uint16_t led_chr_val_handle;
 static const ble_uuid128_t led_chr_uuid =
     BLE_UUID128_INIT(0x23, 0xd1, 0xbc, 0xea, 0x5f, 0x78, 0x23, 0x15, 0xde, 0xef,
                      0x12, 0x12, 0x25, 0x15, 0x00, 0x00);
+
+/* Access PIN characteristics */
+static uint16_t access_pin_chr_val_handle;
+static const ble_uuid128_t access_pin_chr_uuid =
+    BLE_UUID128_INIT(0x21, 0xc9, 0xa1, 0x6b, 0x7f, 0x9b, 0xd4, 0xbe, 0x5e, 0x42,
+                     0x62, 0x5b, 0xdc, 0x36, 0x60, 0xbf);
 
 /* GATT services table */
 static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
@@ -61,6 +70,11 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                                          .access_cb = led_chr_access,
                                          .flags = BLE_GATT_CHR_F_WRITE,
                                          .val_handle = &led_chr_val_handle},
+                                        /* Access PIN characteristic */
+                                        {.uuid = &access_pin_chr_uuid.u,
+                                         .access_cb = access_pin_chr_access,
+                                         .flags = BLE_GATT_CHR_F_WRITE,
+                                         .val_handle = &access_pin_chr_val_handle},
                                         {0}},
     },
 
@@ -161,6 +175,56 @@ static int led_chr_access(uint16_t conn_handle, uint16_t attr_handle,
 error:
     ESP_LOGE(GATT_TAG,
              "unexpected access operation to led characteristic, opcode: %d",
+             ctxt->op);
+    return BLE_ATT_ERR_UNLIKELY;
+}
+
+static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
+                          struct ble_gatt_access_ctxt *ctxt, void *arg) {
+    /* Local variables */
+    int rc;
+
+    /* Handle access events */
+    /* Note: Access PIN characteristic is write only */
+    switch (ctxt->op) {
+
+    /* Write characteristic event */
+    case BLE_GATT_ACCESS_OP_WRITE_CHR:
+        /* Verify connection handle */
+        if (conn_handle != BLE_HS_CONN_HANDLE_NONE) {
+            ESP_LOGI(GATT_TAG, "characteristic write; conn_handle=%d attr_handle=%d",
+                     conn_handle, attr_handle);
+        } else {
+            ESP_LOGI(GATT_TAG,
+                     "characteristic write by nimble stack; attr_handle=%d",
+                     attr_handle);
+        }
+
+        /* Verify attribute handle */
+        if (attr_handle == access_pin_chr_val_handle) {
+            /* Verify access buffer length */
+            if (ctxt->om->om_len >= KEYPAD_PIN_MIN_LEN && ctxt->om->om_len <= KEYPAD_PIN_MAX_LEN) {
+                /* Update access PIN */
+                // TODO check if door is open
+                char pin[KEYPAD_PIN_MAX_LEN + 1];
+                memcpy(pin, ctxt->om->om_data, sizeof(pin));
+                pin[ctxt->om->om_len] = '\0';
+                ESP_ERROR_CHECK(write_pin((const char *) pin, "access_pin"));
+            } else {
+                goto error;
+            }
+            return rc;
+        }
+        goto error;
+
+    /* Unknown event */
+    default:
+        goto error;
+    }
+
+error:
+    ESP_LOGE(GATT_TAG,
+             "unexpected access operation to access pin characteristic, opcode: %d",
              ctxt->op);
     return BLE_ATT_ERR_UNLIKELY;
 }

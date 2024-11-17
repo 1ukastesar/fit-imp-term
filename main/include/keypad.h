@@ -19,6 +19,11 @@
 void nvs_configure();
 
 /*
+ * @brief Update PIN in NVS storage
+*/
+esp_err_t write_pin(const char * pin_to_write, const char * pin_name);
+
+/*
  * @brief Handle a keypress on the keypad
 */
 noreturn void keypad_handler_task();

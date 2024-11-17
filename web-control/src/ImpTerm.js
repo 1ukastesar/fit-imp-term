@@ -58,12 +58,15 @@ const ImpTerm = () => {
     if(!checkPinsMatch())
       return;
 
-    console.log('Set access PIN:', pin);
+    console.log('Requested PIN change:', pin);
+    const textEncoder = new TextEncoder();
+    const pinConvUint8 = textEncoder.encode(pin);
+    console.log('Converted PIN:', pinConvUint8);
 
     bluetoothAPI.requestDevice({
-      // filters: [{ services: ['56841198-7683-4116-9353-26881ff0dc43'] }]
+      // filters: [{ services: [0x1815] }],
       acceptAllDevices: true,
-      optionalServices: ['56841198-7683-4116-9353-26881ff0dc43']
+      // optionalServices: ['1815']
     })
     .then(device => {
       console.log('Chosen device:', device.name);
@@ -71,16 +74,16 @@ const ImpTerm = () => {
     })
     .then(server => {
       console.log('Getting service...');
-      return server.getPrimaryService('56841198-7683-4116-9353-26881ff0dc43');
+      return server.getPrimaryService(0x1815);
     })
     .then(service => {
       console.log('Getting characteristic...');
-      return service.getCharacteristic('b97c2777-b164-4f45-a039-60cdf4897a16');
+      return service.getCharacteristic('bf6036dc-5b62-425e-bed4-9b7f6ba1c921');
     })
     .then(characteristic => {
       console.log('Writing value...');
-      const pinArray = new Uint8Array([parseInt(pin)]);
-      return characteristic.writeValue(pinArray);
+      console.log('PIN array:', pinConvUint8);
+      return characteristic.writeValue(pinConvUint8);
     })
     .then(_ => {
       console.log('PIN set successfully');

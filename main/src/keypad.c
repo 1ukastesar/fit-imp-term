@@ -90,12 +90,13 @@ static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, boo
     return ESP_OK;
 }
 
-static esp_err_t write_pin(const char * pin_to_write, const char * pin_name)
+esp_err_t write_pin(const char * pin_to_write, const char * pin_name)
 {
     ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_set_str(keypad_nvs_handle, pin_name, pin_to_write), "Error writing PIN to NVS", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_commit(keypad_nvs_handle), "Error committing changes", PROJ_NAME);
     nvs_close(keypad_nvs_handle);
+    ESP_LOGI(PROJ_NAME, "%s updated to %s", pin_name, pin_to_write);
     return ESP_OK;
 }
 
