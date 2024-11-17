@@ -72,7 +72,7 @@ static int ble_chr_access_cb(uint16_t conn_handle, uint16_t attr_handle,
         }
 
         /* Check if door is open */
-        if(!door_is_open()) {
+        if(!is_door_open()) {
             return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
         }
 
@@ -84,7 +84,7 @@ static int ble_chr_access_cb(uint16_t conn_handle, uint16_t attr_handle,
                 char pin[KEYPAD_PIN_MAX_LEN + 1] = {0};
                 memcpy(pin, ctxt->om->om_data, sizeof(pin));
                 pin[ctxt->om->om_len] = '\0';
-                ESP_ERROR_CHECK(write_pin((const char *) pin, "access_pin"));
+                ESP_ERROR_CHECK(change_pin((const char *) pin, "access_pin"));
                 return ESP_OK;
             } else {
                 goto error;

@@ -91,9 +91,14 @@ static esp_err_t check_pin(const char * pin_to_check, const char * pin_name, boo
     return ESP_OK;
 }
 
-bool door_is_open()
+esp_err_t change_pin(const char * new_pin, const char * pin_name)
 {
-    return door_state == DOOR_OPEN;
+    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_set_str(keypad_nvs_handle, pin_name, new_pin), "Error writing PIN to NVS", PROJ_NAME);
+    ESP_RETURN_ON_ERROR(nvs_commit(keypad_nvs_handle), "Error committing changes", PROJ_NAME);
+    nvs_close(keypad_nvs_handle);
+    ESP_LOGI(PROJ_NAME, "%s updated to %s", pin_name, new_pin);
+    return ESP_OK;
 }
 
 esp_err_t update_door_duration(uint16_t duration)
@@ -112,16 +117,6 @@ esp_err_t read_door_duration(uint16_t * duration)
     ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READONLY, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
     ESP_RETURN_ON_ERROR(nvs_get_u16(keypad_nvs_handle, "door_duration", duration), "Error reading duration from NVS", PROJ_NAME);
     nvs_close(keypad_nvs_handle);
-    return ESP_OK;
-}
-
-esp_err_t write_pin(const char * pin_to_write, const char * pin_name)
-{
-    ESP_RETURN_ON_ERROR(nvs_open(KEYPAD_STORAGE_NAME, NVS_READWRITE, &keypad_nvs_handle), "Error opening handle", PROJ_NAME);
-    ESP_RETURN_ON_ERROR(nvs_set_str(keypad_nvs_handle, pin_name, pin_to_write), "Error writing PIN to NVS", PROJ_NAME);
-    ESP_RETURN_ON_ERROR(nvs_commit(keypad_nvs_handle), "Error committing changes", PROJ_NAME);
-    nvs_close(keypad_nvs_handle);
-    ESP_LOGI(PROJ_NAME, "%s updated to %s", pin_name, pin_to_write);
     return ESP_OK;
 }
 
@@ -220,7 +215,7 @@ void keypad_keypress_handler(char key_pressed)
                         error_state = FAIL;
                         break;
                     }
-                    ESP_ERROR_CHECK(write_pin(pin, "new_pin"));
+                    ESP_ERROR_CHECK(change_pin(pin, "new_pin"));
                     ESP_LOGI(PROJ_NAME, "Confirm new PIN");
                     pin_state = PIN_CHANGE_CONFIRM;
                     error_state = SUCCESS;
@@ -230,7 +225,7 @@ void keypad_keypress_handler(char key_pressed)
                     ESP_ERROR_CHECK(check_pin(pin, "new_pin", &is_correct));
                     if(is_correct) {
                         ESP_LOGI(PROJ_NAME, "PIN change confirmed");
-                        ESP_ERROR_CHECK(write_pin(pin, "access_pin"));
+                        ESP_ERROR_CHECK(change_pin(pin, "access_pin"));
                         pin_state = PIN_AUTH;
                         gpio_set_level(DOOR_CLOSED_LED, GPIO_HIGH);
                         error_state = SUCCESS;
@@ -283,6 +278,11 @@ noreturn void keypad_handler_task()
         }
         xQueueReset(gpio_evt_queue);
     }
+}
+
+bool is_door_open()
+{
+    return door_state == DOOR_OPEN;
 }
 
 void door_open()

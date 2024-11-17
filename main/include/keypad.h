@@ -19,9 +19,9 @@
 void nvs_configure();
 
 /*
- * @brief Check if the door is open
+ * @brief Update PIN in NVS storage
 */
-bool door_is_open();
+esp_err_t change_pin(const char * pin_to_write, const char * pin_name);
 
 /*
  * @brief Update door duration in NVS storage
@@ -29,9 +29,9 @@ bool door_is_open();
 esp_err_t update_door_duration(uint16_t duration);
 
 /*
- * @brief Update PIN in NVS storage
+ * @brief Check if the door is open
 */
-esp_err_t write_pin(const char * pin_to_write, const char * pin_name);
+bool is_door_open();
 
 /*
  * @brief Handle a keypress on the keypad
