@@ -181,9 +181,6 @@ error:
 
 static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                           struct ble_gatt_access_ctxt *ctxt, void *arg) {
-    /* Local variables */
-    int rc;
-
     /* Handle access events */
     /* Note: Access PIN characteristic is write only */
     switch (ctxt->op) {
@@ -210,10 +207,10 @@ static int access_pin_chr_access(uint16_t conn_handle, uint16_t attr_handle,
                 memcpy(pin, ctxt->om->om_data, sizeof(pin));
                 pin[ctxt->om->om_len] = '\0';
                 ESP_ERROR_CHECK(write_pin((const char *) pin, "access_pin"));
+                return ESP_OK;
             } else {
                 goto error;
             }
-            return rc;
         }
         goto error;
 
