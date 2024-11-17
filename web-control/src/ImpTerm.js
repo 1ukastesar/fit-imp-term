@@ -64,8 +64,8 @@ const ImpTerm = () => {
     console.log('Converted PIN:', pinConvUint8);
 
     bluetoothAPI.requestDevice({
-      filters: [{ services: [0x1815] }],
-      optionalServices: [0x1815]
+      acceptAllDevices: true,
+      optionalServices: ["automation_io"]
     })
     .then(device => {
       console.log('Chosen device:', device.name);
@@ -73,7 +73,7 @@ const ImpTerm = () => {
     })
     .then(server => {
       console.log('Getting service...');
-      return server.getPrimaryService(0x1815);
+      return server.getPrimaryService("automation_io");
     })
     .then(service => {
       console.log('Getting characteristic...');
