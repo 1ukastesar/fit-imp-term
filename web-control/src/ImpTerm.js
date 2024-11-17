@@ -85,7 +85,7 @@ const handleConnection = async (notification) => {
 const handleChangeError = (error, notification) => {
   if(error.message.includes('GATT operation not permitted')) {
     console.error('Operation not permitted: You need to unlock the device first');
-    toast.update(notification, { render: "Operation not permitted", type: "error", isLoading: false, autoClose: true });
+    toast.update(notification, { render: "Unlock the device first", type: "error", isLoading: false, autoClose: true });
   }
   else {
     console.error('Error:', error);
