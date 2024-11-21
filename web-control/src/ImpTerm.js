@@ -264,7 +264,7 @@ const ImpTerm = () => {
               color="primary"
               fullWidth
             >
-              Change
+              Set
             </Button>
           </Box>
           <br />

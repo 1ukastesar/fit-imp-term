@@ -114,7 +114,7 @@ It is written in React with the help of Material-UI and is hosted on GitHub Page
 2. You will see a page with two simple forms - one for setting the access PIN code and other one for door unlock duration change in seconds.
 ![IMP Term Web Configuration UI](docs/img/web-control-ui.png)
 3. Enter the values you want to change:
-   -  To change access PIN code, enter the new code in the first field, then the PIN confirmation in the second field and press "Change" button
+   -  To change access PIN code, enter the new code in the first field, then the PIN confirmation in the second field and press "Set" button
    -  To change door unlock duration, enter the new duration in seconds in the third field and press "Update" button
 
 4. A connection dialog will open. Select `imp-term` from the list and confirm with "Pair" button.
