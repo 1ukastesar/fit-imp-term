@@ -1,4 +1,5 @@
 import { Alert, Box, Button, Container, FormControl, InputAdornment, InputLabel, OutlinedInput, TextField, Typography } from '@mui/material';
+import Link from '@mui/material/Link';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -214,19 +215,19 @@ const ImpTerm = () => {
   }
 
   return (
-    <Container maxWidth="sm" style={{ marginTop: '50px' }}>
+    <Container maxWidth="sm" style={{ marginTop: '50px', display: 'flex', flexDirection: 'column', minHeight: '90vh' }} gap={2}>
       <Typography variant="h4" align="center" gutterBottom>
         IMP Access Terminal
       </Typography>
-        {bluetoothAPI ? (
+      {bluetoothAPI ? (
         <>
           <br />
           <Box
-          component="form"
-          onSubmit={handlePinSubmit}
-          display="flex"
-          flexDirection="column"
-          gap={2}
+            component="form"
+            onSubmit={handlePinSubmit}
+            display="flex"
+            flexDirection="column"
+            gap={2}
           >
             <Typography variant="h6" gutterBottom>
               Access PIN
@@ -301,23 +302,28 @@ const ImpTerm = () => {
             </Button>
           </Box>
         </>
-        ) : (
-          <>
+      ) : (
+        <Container>
+          <br />
+          <Alert severity="error">
+            <b>Web Bluetooth API is not supported in this browser.</b>
+          </Alert>
+          <br />
+          <Alert severity="info">
+            Use the latest version of Chrome or Edge and enable the experimental Web Platform features flag:
             <br />
-            <Alert severity="error">
-              <b>Web Bluetooth API is not supported in this browser.</b>
-            </Alert>
+            <a href="chrome://flags/#enable-experimental-web-platform-features">chrome://flags/#enable-experimental-web-platform-features</a>
             <br />
-            <Alert severity="info">
-              Use the latest version of Chrome or Edge and enable the experimental Web Platform features flag:
-              <br />
-              <a href="chrome://flags/#enable-experimental-web-platform-features">chrome://flags/#enable-experimental-web-platform-features</a>
-              <br />
-              <br />
-              You need to enter that URL manually, as Chrome does not allow direct links to internal pages. Restart the browser for the setting to take effect.
-            </Alert>
-          </>
-        )}
+            <br />
+            You need to enter that URL manually, as Chrome does not allow direct links to internal pages. Restart the browser for the setting to take effect.
+          </Alert>
+        </Container>
+      )}
+      <Box mt="auto" style={{ textAlign: 'center', color: 'grey' }}>
+        <Link href="https://www.flaticon.com/free-icons/dial-pad" title="dial-pad icons" style={{ color: 'grey', textDecoration: 'none' }}>
+          <Typography>Dial-pad icons created by Uniconlabs - Flaticon</Typography>
+        </Link>
+      </Box>
     </Container>
   );
 };
