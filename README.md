@@ -93,14 +93,17 @@ The device logs most of the operations and important events.
 To see debug logs, you can use the `idf.py monitor` command when the device is connected to your computer.
 
 ## Web configuration
-### The project also comes with a simple web configuration. You can access it at https://1ukastesar.github.io/fit-imp-term/.
+### The project also comes with a simple web configuration. You can access it at [https://1ukastesar.github.io/fit-imp-term/](https://1ukastesar.github.io/fit-imp-term/).
 
 It is written in React with the help of Material-UI and is hosted on GitHub Pages.
 
 > If you prefer, you can download nvm, install npm and run the project locally by following these steps:
 > ```bash
 > cd web-control
-> curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+> curl -o- \
+> https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/\
+> install.sh \
+> | bash
 > nvm install 22
 > npm install
 > npm start
@@ -108,14 +111,25 @@ It is written in React with the help of Material-UI and is hosted on GitHub Page
 
 ### Web configuration usage
 1. Open the web configuration
-2. You will see a page with two simple forms - one for setting the access PIN code and other one for door unlock duration change in seconds.![IMP Term Web Configuration UI](docs/img/web-control-ui.png)
+2. You will see a page with two simple forms - one for setting the access PIN code and other one for door unlock duration change in seconds.
+![IMP Term Web Configuration UI](docs/img/web-control-ui.png)
 3. Enter the values you want to change:
    -  To change access PIN code, enter the new code in the first field, then the PIN confirmation in the second field and press "Change" button
    -  To change door unlock duration, enter the new duration in seconds in the third field and press "Update" button
-4. A connection dialog will open. Select `imp-term` from the list and confirm with "Pair" button.![Pairing process](docs/img/pairing-process.png)
-5. The page will try to update the device's settings:
-   - If the device is not unlocked, you will be asked to unlock it first. ![Permission error dialog](docs/img/permission-error-dialog.png)
 
-   - If the device is unlocked, the settings will be updated and you will see a success message. ![Success dialog](docs/img/success-dialog.png)
+4. A connection dialog will open. Select `imp-term` from the list and confirm with "Pair" button.
+
+![Pairing process](docs/img/pairing-process.png)
+
+5. The page will try to update the device's settings:
+   - If the device is not unlocked, you will be asked to unlock it first.
+
+![Permission error dialog](docs/img/permission-error-dialog.png)
+
+   - If the device is unlocked, the settings will be updated and you will see a success message.
+
+![Success dialog](docs/img/success-dialog.png)
+
    - If a network error occurs, you will see an error message.
+
 6. You can now close the page.
