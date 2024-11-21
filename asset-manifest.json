@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/fit-imp-term/static/css/main.f029a054.css",
-    "main.js": "/fit-imp-term/static/js/main.a2b72048.js",
+    "main.js": "/fit-imp-term/static/js/main.71c1827a.js",
     "static/js/453.d4f2db67.chunk.js": "/fit-imp-term/static/js/453.d4f2db67.chunk.js",
     "index.html": "/fit-imp-term/index.html",
     "main.f029a054.css.map": "/fit-imp-term/static/css/main.f029a054.css.map",
-    "main.a2b72048.js.map": "/fit-imp-term/static/js/main.a2b72048.js.map",
+    "main.71c1827a.js.map": "/fit-imp-term/static/js/main.71c1827a.js.map",
     "453.d4f2db67.chunk.js.map": "/fit-imp-term/static/js/453.d4f2db67.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f029a054.css",
-    "static/js/main.a2b72048.js"
+    "static/js/main.71c1827a.js"
   ]
 }
