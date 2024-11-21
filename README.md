@@ -31,7 +31,6 @@ cd fit-imp-term
 . $IDF_PATH/export.sh
 ```
 
-> [!NOTE]
 > Replace `$IDF_PATH` with the path to your ESP-IDF installation. For example, if you have ESP-IDF installed in `~/esp/esp-idf`, the command would be `. ~/esp/esp-idf/export.sh`
 
 4. Build the project
@@ -46,7 +45,6 @@ idf.py build
 idf.py -p /dev/ttyUSB0 flash
 ```
 
-> [!NOTE]
 > Replace `/dev/ttyUSB0` with the path to your ESP32 device.
 >
 > **On Linux**, you can use `sudo dmesg | grep tty` to find the correct path.
@@ -70,7 +68,6 @@ On the first boot, the device will initialize default settings (configurable in 
 #### Standard mode
 In standard mode, the device will wait for the user to input the access PIN code. If the code is correct, the door will open (see **Door open state** section below).
 
-> [!IMPORTANT]
 > Enter the PIN code using the keypad and press `#` to confirm.
 
 #### Admin mode
@@ -89,7 +86,6 @@ In FAIL state, the red LED will blink 2 times and you have to wait for 2 seconds
 #### Door open state
 When the door is open, the green LED will be turned on. The door will close automatically after a configurable amount of time (see `main/config.h`).
 
-> [!NOTE]
 > You can immediately close the door in opened state by pressing any key on the keypad.
 
 ### Debug logs
@@ -101,7 +97,6 @@ To see debug logs, you can use the `idf.py monitor` command when the device is c
 
 It is written in React with the help of Material-UI and is hosted on GitHub Pages.
 
-> [!NOTE]
 > If you prefer, you can download nvm, install npm and run the project locally by following these steps:
 > ```bash
 > cd web-control
