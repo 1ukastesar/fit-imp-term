@@ -112,7 +112,9 @@ It is written in React with the help of Material-UI and is hosted on GitHub Page
 ### Web configuration usage
 1. Open the web configuration
 2. You will see a page with two simple forms - one for setting the access PIN code and other one for door unlock duration change in seconds.
+
 ![IMP Term Web Configuration UI](docs/img/web-control-ui.png)
+
 3. Enter the values you want to change:
    -  To change access PIN code, enter the new code in the first field, then the PIN confirmation in the second field and press "Set" button
    -  To change door unlock duration, enter the new duration in seconds in the third field and press "Update" button
@@ -133,3 +135,22 @@ It is written in React with the help of Material-UI and is hosted on GitHub Page
    - If a network error occurs, you will see an error message.
 
 6. You can now close the page.
+
+## Implementation
+### Tools
+- The project was built using ESP-IDF v5.3.1.
+- All development and debugging was done in VS Code using ESP-IDF plugin and/or in command line using `idf.py` from the official IDF environment.
+
+### Device
+- The device is an ESP32 development board named Wedos D1 mini. ([Datasheet with pinout](https://www.halloweenfreak.de/arduino/pdfs/D1_R32_ENG.pdf))
+- The device was connected to the dev PC through a USB A-to-micro-A data cable.
+- By looking at the pinout mentioned above, a GPIO 5, 16, 17, 23, 25, 26, 27 were identified as good for handling keypad I/O pins. They were divided into rows and columns and recorded in `main/include/config.h` file.
+
+### Software
+- A keyboard lookup mechanism was implemented which takes GPIO num of a row and cycles through columns in that row to identify which key was pressed (`main/src/keypad.c`)
+- To use CPU more efficiently, an interrupt handler, task queue and key press handler were implemented.
+- To determine whether device crashed, a heart beat task was added (`main/main.c`)
+- PIN save and load to/from NVS and door opening task was implemented in `keypad` module (`main/src/keypad.c`)
+- External LEDs (green and red) were attached to PINs 18 and 19 and configured as output.
+- BLE side was implemented in `main/src/gap.c` and `main/src/gatt_svc.c`. A `NimBLE_GATT_Server` IDF example was used to accomplish that.
+- Control website is written in React and using `navigator.bluetooth` with promises to connect to the device and write the desired characteristics. Its source resides in `web-control` folder.
